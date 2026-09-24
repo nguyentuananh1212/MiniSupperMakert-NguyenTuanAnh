@@ -19,7 +19,12 @@ namespace MiniSupermarket.WinForms
         public FormCategoryManagement()
         {
             InitializeComponent();
-
+            // Gắn Token đã lưu lúc đăng nhập vào Header của HttpClient
+            if (!string.IsNullOrEmpty(SessionManager.JwtToken))
+            {
+                _client.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", SessionManager.JwtToken);
+            }
             // Thiết lập DataGridView
             SetupDataGridView();
         }
