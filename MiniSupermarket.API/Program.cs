@@ -2,8 +2,15 @@
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using MiniSupermarket.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Lấy chuỗi kết nối từ appsettings.json và đăng ký DbContext (SQL Server) qua DI
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<SupermarketDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // Cấu hình JWT
 var jwtSecret = builder.Configuration["JwtSettings:Secret"]
