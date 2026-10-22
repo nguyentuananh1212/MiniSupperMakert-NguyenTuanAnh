@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniSupermarket.API.Data;
 using MiniSupermarket.API.Models;
@@ -9,7 +10,14 @@ namespace MiniSupermarket.API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
+        // Dữ liệu nhóm hàng nay lấy từ SQL Server (cùng nguồn với bảng Products)
+        // để mã nhóm hàng khi thêm/sửa sản phẩm luôn hợp lệ.
         private readonly SupermarketDbContext _context;
+
+        public CategoriesController(SupermarketDbContext context)
+        {
+            _context = context;
+        }
 
         // Tiêm DbContext thông qua Constructor Injection
         public CategoriesController(SupermarketDbContext context)
@@ -21,23 +29,23 @@ namespace MiniSupermarket.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var list = await _context.Categories.AsNoTracking().ToListAsync();
+            var list = await _context.Categories.AsNoTracking().OrderBy(c => c.CategoryId).ToListAsync();
             return Ok(list);
         }
 
-        // 2. READ: Lấy chi tiết 1 danh mục theo ID
+        // 2. READ: Lấy chi tiết một nhóm hàng theo ID (GET /api/categories/{id})
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var cat = await _context.Categories.FindAsync(id);
+            if (cat == null)
             {
                 return NotFound(new { message = "Không tìm thấy nhóm hàng trong CSDL!" });
             }
             return Ok(category);
         }
 
-        // 3. SEARCH: Tìm kiếm qua Query String trên SQL Server
+        // 3. SEARCH: Tìm kiếm nhóm hàng theo từ khóa (GET /api/categories/search?keyword=...)
         [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] string keyword)
         {
@@ -45,30 +53,32 @@ namespace MiniSupermarket.API.Controllers
             {
                 return BadRequest(new { message = "Vui lòng nhập từ khóa tìm kiếm!" });
             }
-            // EF Core dịch biểu thức LINQ thành câu lệnh SQL LIKE tương ứng
             var result = await _context.Categories
+                .AsNoTracking()
                 .Where(c => c.CategoryName.Contains(keyword))
                 .ToListAsync();
             return Ok(result);
         }
 
-        // 4. CREATE: Thêm mới nhóm hàng vào Database
+        // 4. CREATE: Thêm mới nhóm hàng (POST /api/categories) - Admin, Warehouse
         [HttpPost]
+        [Authorize(Roles = "Admin,Warehouse")]
         public async Task<IActionResult> Create([FromBody] Category newCat)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
+            newCat.CategoryId = 0; // để SQL Server tự tăng
             _context.Categories.Add(newCat);
-            await _context.SaveChangesAsync(); // Lưu thay đổi vào SQL Server
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = newCat.CategoryId }, newCat);
         }
 
-        // 5. UPDATE: Cập nhật nhóm hàng vào Database
+        // 5. UPDATE: Cập nhật thông tin nhóm hàng (PUT /api/categories/{id}) - Admin, Warehouse
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Warehouse")]
         public async Task<IActionResult> Update(int id, [FromBody] Category updateCat)
         {
             var cat = await _context.Categories.FindAsync(id);
@@ -76,7 +86,10 @@ namespace MiniSupermarket.API.Controllers
             {
                 return NotFound(new { message = "Không tìm thấy nhóm hàng cần sửa!" });
             }
-
+            if (string.IsNullOrWhiteSpace(updateCat.CategoryName))
+            {
+                return BadRequest(new { message = "Tên không được trống!" });
+            }
             cat.CategoryName = updateCat.CategoryName;
             cat.Description = updateCat.Description;
 
@@ -84,8 +97,9 @@ namespace MiniSupermarket.API.Controllers
             return NoContent();
         }
 
-        // 6. DELETE: Xóa nhóm hàng khỏi Database
+        // 6. DELETE: Xóa nhóm hàng theo ID (DELETE /api/categories/{id}) - Admin, Warehouse
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Warehouse")]
         public async Task<IActionResult> Delete(int id)
         {
             var cat = await _context.Categories.FindAsync(id);
@@ -94,9 +108,16 @@ namespace MiniSupermarket.API.Controllers
                 return NotFound(new { message = "Không tìm thấy nhóm hàng cần xóa!" });
             }
 
-            _context.Categories.Remove(cat);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            try
+            {
+                _context.Categories.Remove(cat);
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (DbUpdateException)
+            {
+                return Conflict(new { message = "Không thể xóa: nhóm hàng đang có sản phẩm." });
+            }
         }
     }
 }

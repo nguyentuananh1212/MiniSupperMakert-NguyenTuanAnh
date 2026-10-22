@@ -82,7 +82,7 @@
             btnLogin.Name = "btnLogin";
             btnLogin.Size = new Size(150, 30);
             btnLogin.TabIndex = 5;
-            btnLogin.Text = "Đăng nhập hệ thống";
+            btnLogin.Text = "Đăng nhập";
             btnLogin.UseVisualStyleBackColor = true;
             btnLogin.Click += btnLogin_Click;
             // 
@@ -93,7 +93,7 @@
             label1.Name = "label1";
             label1.Size = new Size(138, 15);
             label1.TabIndex = 6;
-            label1.Text = "ĐĂNG NHẬP HỆ THỐNG";
+            label1.Text = "FAMILY FRESH - ĐĂNG NHẬP";
             // 
             // FormLogin
             // 
@@ -108,7 +108,7 @@
             Controls.Add(lblMatKhau);
             Controls.Add(lblTaiKhoan);
             Name = "FormLogin";
-            Text = "Đăng nhập hệ thống";
+            Text = "Siêu thị Mini Family Fresh - Đăng nhập";
             Load += FormLogin_Load;
             ResumeLayout(false);
             PerformLayout();
@@ -124,4 +124,4 @@
         private Button btnLogin;
         private Label label1;
     }
-}
+}
