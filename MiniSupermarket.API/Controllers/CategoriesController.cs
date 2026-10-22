@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,113 +11,147 @@ namespace MiniSupermarket.API.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        // Dữ liệu nhóm hàng nay lấy từ SQL Server (cùng nguồn với bảng Products)
-        // để mã nhóm hàng khi thêm/sửa sản phẩm luôn hợp lệ.
         private readonly SupermarketDbContext _context;
 
+        // Constructor: chỉ giữ một lần
         public CategoriesController(SupermarketDbContext context)
         {
             _context = context;
         }
 
-        // Tiêm DbContext thông qua Constructor Injection
-        public CategoriesController(SupermarketDbContext context)
-        {
-            _context = context;
-        }
-
-        // 1. READ: Lấy toàn bộ danh mục từ SQL Server
+        // 1. READ: Lấy toàn bộ danh mục
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var list = await _context.Categories.AsNoTracking().OrderBy(c => c.CategoryId).ToListAsync();
+            var list = await _context.Categories
+                .AsNoTracking()
+                .OrderBy(c => c.CategoryId)
+                .ToListAsync();
+
             return Ok(list);
         }
 
-        // 2. READ: Lấy chi tiết một nhóm hàng theo ID (GET /api/categories/{id})
+        // 2. READ: Lấy chi tiết danh mục theo ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var cat = await _context.Categories.FindAsync(id);
+
             if (cat == null)
             {
-                return NotFound(new { message = "Không tìm thấy nhóm hàng trong CSDL!" });
+                return NotFound(new
+                {
+                    message = "Không tìm thấy nhóm hàng trong CSDL!"
+                });
             }
-            return Ok(category);
+
+            return Ok(cat);
         }
 
-        // 3. SEARCH: Tìm kiếm nhóm hàng theo từ khóa (GET /api/categories/search?keyword=...)
+        // 3. SEARCH: Tìm kiếm danh mục
         [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string keyword)
+        public async Task<IActionResult> Search(
+            [FromQuery] string keyword)
         {
             if (string.IsNullOrWhiteSpace(keyword))
             {
-                return BadRequest(new { message = "Vui lòng nhập từ khóa tìm kiếm!" });
+                return BadRequest(new
+                {
+                    message = "Vui lòng nhập từ khóa tìm kiếm!"
+                });
             }
+
             var result = await _context.Categories
                 .AsNoTracking()
                 .Where(c => c.CategoryName.Contains(keyword))
                 .ToListAsync();
+
             return Ok(result);
         }
 
-        // 4. CREATE: Thêm mới nhóm hàng (POST /api/categories) - Admin, Warehouse
+        // 4. CREATE: Thêm danh mục
         [HttpPost]
         [Authorize(Roles = "Admin,Warehouse")]
-        public async Task<IActionResult> Create([FromBody] Category newCat)
+        public async Task<IActionResult> Create(
+            [FromBody] Category newCat)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            newCat.CategoryId = 0; // để SQL Server tự tăng
+
+            newCat.CategoryId = 0;
+
             _context.Categories.Add(newCat);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = newCat.CategoryId }, newCat);
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = newCat.CategoryId },
+                newCat);
         }
 
-        // 5. UPDATE: Cập nhật thông tin nhóm hàng (PUT /api/categories/{id}) - Admin, Warehouse
+        // 5. UPDATE: Cập nhật danh mục
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Warehouse")]
-        public async Task<IActionResult> Update(int id, [FromBody] Category updateCat)
+        public async Task<IActionResult> Update(
+            int id,
+            [FromBody] Category updateCat)
         {
             var cat = await _context.Categories.FindAsync(id);
+
             if (cat == null)
             {
-                return NotFound(new { message = "Không tìm thấy nhóm hàng cần sửa!" });
+                return NotFound(new
+                {
+                    message = "Không tìm thấy nhóm hàng cần sửa!"
+                });
             }
+
             if (string.IsNullOrWhiteSpace(updateCat.CategoryName))
             {
-                return BadRequest(new { message = "Tên không được trống!" });
+                return BadRequest(new
+                {
+                    message = "Tên không được trống!"
+                });
             }
+
             cat.CategoryName = updateCat.CategoryName;
             cat.Description = updateCat.Description;
 
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
 
-        // 6. DELETE: Xóa nhóm hàng theo ID (DELETE /api/categories/{id}) - Admin, Warehouse
+        // 6. DELETE: Xóa danh mục
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin,Warehouse")]
         public async Task<IActionResult> Delete(int id)
         {
             var cat = await _context.Categories.FindAsync(id);
+
             if (cat == null)
             {
-                return NotFound(new { message = "Không tìm thấy nhóm hàng cần xóa!" });
+                return NotFound(new
+                {
+                    message = "Không tìm thấy nhóm hàng cần xóa!"
+                });
             }
 
             try
             {
                 _context.Categories.Remove(cat);
                 await _context.SaveChangesAsync();
+
                 return NoContent();
             }
             catch (DbUpdateException)
             {
-                return Conflict(new { message = "Không thể xóa: nhóm hàng đang có sản phẩm." });
+                return Conflict(new
+                {
+                    message = "Không thể xóa: nhóm hàng đang có sản phẩm."
+                });
             }
         }
     }
