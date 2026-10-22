@@ -5,7 +5,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using MiniSupermarket.API.Data;
 
-var builder = WebApplication.CreateBuilder(args);
 
 // Lấy chuỗi kết nối từ appsettings.json và đăng ký DbContext (SQL Server) qua DI
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

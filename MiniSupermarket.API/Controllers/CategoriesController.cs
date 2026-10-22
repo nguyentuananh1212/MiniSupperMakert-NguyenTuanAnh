@@ -7,7 +7,6 @@ using MiniSupermarket.API.Models;
 namespace MiniSupermarket.API.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize] // Yêu cầu chung: Phải đăng nhập mới được gọi các API trong Controller này
     [ApiController]
     public class CategoriesController : ControllerBase
     {
@@ -20,7 +19,13 @@ namespace MiniSupermarket.API.Controllers
             _context = context;
         }
 
-        // 1. READ: Lấy toàn bộ danh sách nhóm hàng (GET /api/categories) - Mọi user đã đăng nhập đều xem được
+        // Tiêm DbContext thông qua Constructor Injection
+        public CategoriesController(SupermarketDbContext context)
+        {
+            _context = context;
+        }
+
+        // 1. READ: Lấy toàn bộ danh mục từ SQL Server
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -35,9 +40,9 @@ namespace MiniSupermarket.API.Controllers
             var cat = await _context.Categories.FindAsync(id);
             if (cat == null)
             {
-                return NotFound(new { message = "Không tìm thấy nhóm hàng!" });
+                return NotFound(new { message = "Không tìm thấy nhóm hàng trong CSDL!" });
             }
-            return Ok(cat);
+            return Ok(category);
         }
 
         // 3. SEARCH: Tìm kiếm nhóm hàng theo từ khóa (GET /api/categories/search?keyword=...)
@@ -46,7 +51,7 @@ namespace MiniSupermarket.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(keyword))
             {
-                return BadRequest(new { message = "Vui lòng nhập từ khóa!" });
+                return BadRequest(new { message = "Vui lòng nhập từ khóa tìm kiếm!" });
             }
             var result = await _context.Categories
                 .AsNoTracking()
@@ -60,9 +65,9 @@ namespace MiniSupermarket.API.Controllers
         [Authorize(Roles = "Admin,Warehouse")]
         public async Task<IActionResult> Create([FromBody] Category newCat)
         {
-            if (string.IsNullOrWhiteSpace(newCat.CategoryName))
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new { message = "Tên không được trống!" });
+                return BadRequest(ModelState);
             }
             newCat.CategoryId = 0; // để SQL Server tự tăng
             _context.Categories.Add(newCat);

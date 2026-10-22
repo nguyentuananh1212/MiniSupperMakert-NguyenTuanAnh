@@ -150,6 +150,99 @@ namespace MiniSupermarket.WinForms
                 );
             }
         }
+        private async Task HandleApiErrorAsync(
+HttpResponseMessage response,
+string action)
+        {
+            string errorContent = "";
+
+            try
+            {
+                errorContent =
+                    await response.Content.ReadAsStringAsync();
+            }
+            catch
+            {
+                errorContent = "";
+            }
+
+            string message;
+
+            switch (response.StatusCode)
+            {
+                case System.Net.HttpStatusCode.BadRequest:
+                    message =
+                        $"Không thể {action}.\n\n" +
+                        "Dữ liệu gửi lên không hợp lệ.\n" +
+                        "Vui lòng kiểm tra lại thông tin đã nhập.";
+                    break;
+
+                case System.Net.HttpStatusCode.Unauthorized:
+                    message =
+                        $"Không thể {action}.\n\n" +
+                        "Phiên đăng nhập đã hết hạn hoặc bạn chưa đăng nhập.\n" +
+                        "Vui lòng đăng nhập lại.";
+                    break;
+
+                case System.Net.HttpStatusCode.Forbidden:
+                    message =
+                        $"Không thể {action}.\n\n" +
+                        "Bạn không có quyền thực hiện thao tác này.";
+                    break;
+
+                case System.Net.HttpStatusCode.NotFound:
+                    message =
+                        $"Không thể {action}.\n\n" +
+                        "Không tìm thấy nhóm hàng cần thao tác.\n" +
+                        "Có thể dữ liệu đã bị xóa trước đó.";
+                    break;
+
+                case System.Net.HttpStatusCode.Conflict:
+                    message =
+                        $"Không thể {action}.\n\n" +
+                        "Dữ liệu bị trùng hoặc nhóm hàng đang được sử dụng.\n" +
+                        "Vui lòng kiểm tra lại dữ liệu.";
+                    break;
+
+                case System.Net.HttpStatusCode.InternalServerError:
+                    message =
+                        $"Không thể {action}.\n\n" +
+                        "Web API đang gặp lỗi phía máy chủ.\n" +
+                        "Vui lòng kiểm tra API hoặc thử lại sau.";
+                    break;
+
+                case System.Net.HttpStatusCode.ServiceUnavailable:
+                    message =
+                        $"Không thể {action}.\n\n" +
+                        "Web API hiện không khả dụng.\n" +
+                        "Vui lòng kiểm tra API có đang chạy hay không.";
+                    break;
+
+                default:
+                    message =
+                        $"Không thể {action}.\n\n" +
+                        $"Mã lỗi HTTP: {(int)response.StatusCode}\n" +
+                        $"Trạng thái: {response.StatusCode}";
+                    break;
+            }
+
+            // Nếu API có trả về nội dung lỗi thì hiển thị thêm
+            if (!string.IsNullOrWhiteSpace(errorContent))
+            {
+                message +=
+                    "\n\nChi tiết từ Web API:\n" +
+                    errorContent;
+            }
+
+            MessageBox.Show(
+                message,
+                $"Lỗi {action}",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
+            );
+
+
+        }
 
         // =========================================================
         // NÚT TẢI LẠI
@@ -200,16 +293,16 @@ namespace MiniSupermarket.WinForms
         // THÊM MỚI
         // =========================================================
         private async void btnAdd_Click(
-            object sender,
-            EventArgs e)
+object sender,
+EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtCategoryName.Text))
             {
                 MessageBox.Show(
-                    "Vui lòng nhập tên nhóm hàng!",
-                    "Cảnh báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
+                "Vui lòng nhập tên nhóm hàng!",
+                "Cảnh báo",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
                 );
 
                 txtCategoryName.Focus();
@@ -236,7 +329,7 @@ namespace MiniSupermarket.WinForms
                 if (response.IsSuccessStatusCode)
                 {
                     MessageBox.Show(
-                        "Thêm mới thành công!",
+                        "Thêm nhóm hàng thành công!",
                         "Thông báo",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information
@@ -247,46 +340,53 @@ namespace MiniSupermarket.WinForms
                 }
                 else
                 {
-                    string error =
-                        await response.Content.ReadAsStringAsync();
-
-                    MessageBox.Show(
-                        "Thêm mới thất bại!\n\n" +
-                        "HTTP: " +
-                        (int)response.StatusCode +
-                        "\n" +
-                        error,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
+                    await HandleApiErrorAsync(
+                        response,
+                        "thêm nhóm hàng"
                     );
                 }
+            }
+            catch (HttpRequestException ex)
+            {
+                MessageBox.Show(
+                    "Không thể kết nối đến Web API.\n\n" +
+                    "Vui lòng kiểm tra Web API có đang chạy hay không.\n\n" +
+                    "Chi tiết:\n" +
+                    ex.Message,
+                    "Lỗi kết nối",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Lỗi thêm mới:\n\n" + ex.Message,
+                    "Đã xảy ra lỗi khi thêm nhóm hàng.\n\n" +
+                    "Chi tiết:\n" +
+                    ex.Message,
                     "Lỗi",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
                 );
             }
+
+
         }
 
         // =========================================================
         // CẬP NHẬT
         // =========================================================
         private async void btnUpdate_Click(
-            object sender,
-            EventArgs e)
+object sender,
+EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtId.Text))
             {
                 MessageBox.Show(
-                    "Vui lòng chọn nhóm hàng cần sửa!",
-                    "Cảnh báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
+                "Vui lòng chọn nhóm hàng cần sửa!",
+                "Cảnh báo",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
                 );
 
                 return;
@@ -295,7 +395,8 @@ namespace MiniSupermarket.WinForms
             if (!int.TryParse(txtId.Text, out int id))
             {
                 MessageBox.Show(
-                    "Mã ID không hợp lệ!",
+                    "Mã ID không hợp lệ!\n\n" +
+                    "Mã ID phải là số nguyên.",
                     "Lỗi",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
@@ -313,6 +414,7 @@ namespace MiniSupermarket.WinForms
                     MessageBoxIcon.Warning
                 );
 
+                txtCategoryName.Focus();
                 return;
             }
 
@@ -338,7 +440,7 @@ namespace MiniSupermarket.WinForms
                 if (response.IsSuccessStatusCode)
                 {
                     MessageBox.Show(
-                        "Cập nhật thành công!",
+                        "Cập nhật nhóm hàng thành công!",
                         "Thông báo",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information
@@ -349,46 +451,53 @@ namespace MiniSupermarket.WinForms
                 }
                 else
                 {
-                    string error =
-                        await response.Content.ReadAsStringAsync();
-
-                    MessageBox.Show(
-                        "Cập nhật thất bại!\n\n" +
-                        "HTTP: " +
-                        (int)response.StatusCode +
-                        "\n" +
-                        error,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
+                    await HandleApiErrorAsync(
+                        response,
+                        "cập nhật nhóm hàng"
                     );
                 }
+            }
+            catch (HttpRequestException ex)
+            {
+                MessageBox.Show(
+                    "Không thể kết nối đến Web API.\n\n" +
+                    "Vui lòng kiểm tra Web API có đang chạy hay không.\n\n" +
+                    "Chi tiết:\n" +
+                    ex.Message,
+                    "Lỗi kết nối",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Lỗi cập nhật:\n\n" + ex.Message,
+                    "Đã xảy ra lỗi khi cập nhật nhóm hàng.\n\n" +
+                    "Chi tiết:\n" +
+                    ex.Message,
                     "Lỗi",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
                 );
             }
+
+
         }
 
         // =========================================================
         // XÓA
         // =========================================================
         private async void btnDelete_Click(
-            object sender,
-            EventArgs e)
+object sender,
+EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtId.Text))
             {
                 MessageBox.Show(
-                    "Vui lòng chọn nhóm hàng cần xóa!",
-                    "Cảnh báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
+                "Vui lòng chọn nhóm hàng cần xóa!",
+                "Cảnh báo",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
                 );
 
                 return;
@@ -397,7 +506,8 @@ namespace MiniSupermarket.WinForms
             if (!int.TryParse(txtId.Text, out int id))
             {
                 MessageBox.Show(
-                    "Mã ID không hợp lệ!",
+                    "Mã ID không hợp lệ!\n\n" +
+                    "Mã ID phải là số nguyên.",
                     "Lỗi",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
@@ -408,7 +518,7 @@ namespace MiniSupermarket.WinForms
 
             DialogResult confirm =
                 MessageBox.Show(
-                    $"Bạn có chắc muốn xóa nhóm hàng ID = {id}?",
+                    $"Bạn có chắc chắn muốn xóa nhóm hàng ID = {id}?",
                     "Xác nhận xóa",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question
@@ -427,7 +537,7 @@ namespace MiniSupermarket.WinForms
                 if (response.IsSuccessStatusCode)
                 {
                     MessageBox.Show(
-                        "Xóa thành công!",
+                        "Xóa nhóm hàng thành công!",
                         "Thông báo",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information
@@ -438,30 +548,37 @@ namespace MiniSupermarket.WinForms
                 }
                 else
                 {
-                    string error =
-                        await response.Content.ReadAsStringAsync();
-
-                    MessageBox.Show(
-                        "Xóa thất bại!\n\n" +
-                        "HTTP: " +
-                        (int)response.StatusCode +
-                        "\n" +
-                        error,
-                        "Lỗi",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
+                    await HandleApiErrorAsync(
+                        response,
+                        "xóa nhóm hàng"
                     );
                 }
+            }
+            catch (HttpRequestException ex)
+            {
+                MessageBox.Show(
+                    "Không thể kết nối đến Web API.\n\n" +
+                    "Vui lòng kiểm tra Web API có đang chạy hay không.\n\n" +
+                    "Chi tiết:\n" +
+                    ex.Message,
+                    "Lỗi kết nối",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Lỗi xóa:\n\n" + ex.Message,
+                    "Đã xảy ra lỗi khi xóa nhóm hàng.\n\n" +
+                    "Chi tiết:\n" +
+                    ex.Message,
                     "Lỗi",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error
                 );
             }
+
+
         }
 
         // =========================================================
