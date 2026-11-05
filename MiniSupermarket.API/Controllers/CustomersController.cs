@@ -143,8 +143,9 @@ namespace MiniSupermarket.API.Controllers
             return Ok(list);
         }
 
-        // POST api/customers
+        // POST api/customers (Chỉ Admin mới có quyền thêm khách hàng)
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CustomerRequest req)
         {
             string phone = req.PhoneNumber.Trim();
@@ -166,8 +167,9 @@ namespace MiniSupermarket.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = entity.CustomerId }, entity);
         }
 
-        // PUT api/customers/5
+        // PUT api/customers/5 (Chỉ Admin mới có quyền cập nhật khách hàng)
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] CustomerRequest req)
         {
             var entity = await _db.Customers.FirstOrDefaultAsync(c => c.CustomerId == id);

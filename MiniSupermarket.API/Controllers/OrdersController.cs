@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Họ tên sinh viên: Nguyễn Tuấn Anh
  * Mô tả: Controller Orders - Thanh toán hóa đơn POS, trừ kho và tích/đổi điểm thưởng (Tiêu chí 42, 47)
  *        + Quản lý đơn hàng: xem danh sách, chi tiết, cập nhật trạng thái, hủy đơn
@@ -267,9 +267,10 @@ namespace MiniSupermarket.API.Controllers
         }
 
         // =====================================================================
-        // PUT api/orders/{id}  - Cập nhật trạng thái đơn hàng
+        // PUT api/orders/{id}  - Cập nhật trạng thái đơn hàng (Chỉ Admin)
         // =====================================================================
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateOrderRequest req)
         {
             var order = await _db.Orders.FirstOrDefaultAsync(o => o.OrderId == id);
@@ -283,9 +284,10 @@ namespace MiniSupermarket.API.Controllers
         }
 
         // =====================================================================
-        // DELETE api/orders/{id}  - Hủy đơn, khôi phục kho và điểm thưởng
+        // DELETE api/orders/{id}  - Hủy đơn, khôi phục kho và điểm thưởng (Chỉ Admin)
         // =====================================================================
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Cancel(int id)
         {
             var order = await _db.Orders

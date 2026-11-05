@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -48,16 +48,19 @@ namespace MiniSupermarket.WinForms
             InitializeComponent();
             SetupGrid();
 
-            // Chỉ Admin mới được xóa khách hàng (API cũng chặn ở lớp 2)
-            btnDelete.Enabled = string.Equals(SessionManager.CurrentRole, "Admin",
-                StringComparison.OrdinalIgnoreCase);
+            bool isAdmin = string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase);
+
+            // Các chức năng Thêm, Sửa, Xóa chỉ Admin mới hiện
+            btnAdd.Visible = isAdmin;
+            btnUpdate.Visible = isAdmin;
+            btnDelete.Visible = isAdmin;
 
             // Nút đổi điểm thưởng khách hàng trực tiếp
             var btnRedeemPoints = new Button
             {
                 Name = "btnRedeemPoints",
                 Text = "🎁  Đổi điểm thưởng",
-                Location = new Point(17, 453),
+                Location = isAdmin ? new Point(17, 453) : new Point(17, 285),
                 Size = new Size(325, 36),
                 BackColor = Color.FromArgb(40, 167, 69),
                 ForeColor = Color.White,
@@ -68,6 +71,15 @@ namespace MiniSupermarket.WinForms
             btnRedeemPoints.FlatAppearance.BorderSize = 0;
             btnRedeemPoints.Click += btnRedeemPoints_Click;
             panelDetail.Controls.Add(btnRedeemPoints);
+
+            if (!isAdmin)
+            {
+                // Với Thu ngân (Cashier), đưa nút Làm mới/Bỏ chọn lên ngay dưới nút Đổi điểm
+                btnClear.Location = new Point(17, 327);
+                txtName.ReadOnly = true;
+                txtPhone.ReadOnly = true;
+                txtAddress.ReadOnly = true;
+            }
         }
 
         private void SetupGrid()
@@ -326,6 +338,11 @@ namespace MiniSupermarket.WinForms
 
         private async void btnAdd_Click(object? sender, EventArgs e)
         {
+            if (!string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Chức năng Thêm khách hàng chỉ dành cho Quản trị viên (Admin)!", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
             if (!ValidateInputs()) return;
 
             if (await SendAsync(() => ApiClientService.Client.PostAsJsonAsync("customers", BuildPayload()),
@@ -339,6 +356,11 @@ namespace MiniSupermarket.WinForms
 
         private async void btnUpdate_Click(object? sender, EventArgs e)
         {
+            if (!string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Chức năng Cập nhật khách hàng chỉ dành cho Quản trị viên (Admin)!", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
             if (!int.TryParse(txtId.Text, out int id))
             {
                 MessageBox.Show("Hãy chọn một khách hàng trong danh sách để cập nhật!", "Cảnh báo",
@@ -357,6 +379,11 @@ namespace MiniSupermarket.WinForms
 
         private async void btnDelete_Click(object? sender, EventArgs e)
         {
+            if (!string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Chức năng Xóa khách hàng chỉ dành cho Quản trị viên (Admin)!", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
             if (!int.TryParse(txtId.Text, out int id))
             {
                 MessageBox.Show("Hãy chọn một khách hàng trong danh sách để xóa!", "Cảnh báo",

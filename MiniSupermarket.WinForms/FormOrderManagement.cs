@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Họ tên sinh viên: Nguyễn Tuấn Anh
  * Mô tả: FormOrderManagement - Quản lý danh sách đơn hàng, xem chi tiết, hủy đơn
  */
@@ -75,7 +75,9 @@ namespace MiniSupermarket.WinForms
             btnRefresh.FlatStyle     = FlatStyle.Flat;
             btnRefresh.Click        += async (s, e) => await LoadOrdersAsync();
 
-            // ----- Nút hủy đơn -----
+            // ----- Nút hủy đơn (chỉ Admin mới hiện) -----
+            bool isAdmin = string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase);
+            btnCancelOrder.Visible   = isAdmin;
             btnCancelOrder.Text      = "❌ Hủy đơn hàng";
             btnCancelOrder.Size      = new System.Drawing.Size(140, 32);
             btnCancelOrder.Location  = new System.Drawing.Point(126, 36);
@@ -206,6 +208,13 @@ namespace MiniSupermarket.WinForms
         // =====================================================
         private async Task CancelSelectedOrderAsync()
         {
+            if (!string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Chỉ Quản trị viên (Admin) mới có quyền hủy đơn hàng!", "Từ chối",
+                    MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+
             if (dgvOrders.CurrentRow == null)
             {
                 MessageBox.Show("Vui lòng chọn một đơn hàng để hủy.", "Thông báo",

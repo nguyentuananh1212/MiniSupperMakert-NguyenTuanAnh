@@ -49,6 +49,32 @@ namespace MiniSupermarket.WinForms
         {
             InitializeComponent();
             SetupGrid();
+            ApplyRolePermissions();
+        }
+
+        private void ApplyRolePermissions()
+        {
+            bool isAdmin = string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase);
+            bool isWarehouse = string.Equals(SessionManager.CurrentRole, "Warehouse", StringComparison.OrdinalIgnoreCase);
+            bool canModify = isAdmin || isWarehouse;
+
+            // Thu ngân (Cashier) chỉ được xem, ẩn toàn bộ chức năng Thêm, Sửa, Xóa
+            btnAdd.Visible = canModify;
+            btnUpdate.Visible = canModify;
+            btnDelete.Visible = canModify;
+
+            if (!canModify)
+            {
+                txtBarcode.ReadOnly = true;
+                txtProductName.ReadOnly = true;
+                nudPrice.Enabled = false;
+                nudStock.Enabled = false;
+                cboCategory.Enabled = false;
+
+                btnLoad.Location = new System.Drawing.Point(15, 385);
+                btnLoad.Size = new System.Drawing.Size(300, 38);
+                btnLoad.Text = "🔄  Làm mới / Bỏ chọn";
+            }
         }
 
         private void SetupGrid()
@@ -285,6 +311,12 @@ namespace MiniSupermarket.WinForms
         // Thêm mới sản phẩm qua API
         private async void btnAdd_Click(object sender, EventArgs e)
         {
+            if (!string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(SessionManager.CurrentRole, "Warehouse", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Chức năng Thêm mới chỉ dành cho Quản trị viên!", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
             if (!ValidateInputs()) return;
 
             var newProd = new
@@ -315,6 +347,12 @@ namespace MiniSupermarket.WinForms
         // Cập nhật sản phẩm qua API
         private async void btnUpdate_Click(object sender, EventArgs e)
         {
+            if (!string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(SessionManager.CurrentRole, "Warehouse", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Chức năng Cập nhật chỉ dành cho Quản trị viên!", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
             if (!int.TryParse(txtId.Text, out int id))
             {
                 MessageBox.Show("Vui lòng chọn một sản phẩm trong danh sách để cập nhật!", "Cảnh báo",
@@ -352,6 +390,12 @@ namespace MiniSupermarket.WinForms
         // Xóa sản phẩm qua API
         private async void btnDelete_Click(object sender, EventArgs e)
         {
+            if (!string.Equals(SessionManager.CurrentRole, "Admin", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(SessionManager.CurrentRole, "Warehouse", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Chức năng Xóa sản phẩm chỉ dành cho Quản trị viên!", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
             if (!int.TryParse(txtId.Text, out int id))
             {
                 MessageBox.Show("Vui lòng chọn một sản phẩm trong danh sách để xóa!", "Cảnh báo",
