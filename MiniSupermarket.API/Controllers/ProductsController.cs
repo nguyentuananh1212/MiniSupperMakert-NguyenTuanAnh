@@ -73,6 +73,80 @@ namespace MiniSupermarket.API.Controllers
         }
 
         // =====================================================
+        // =====================================================
+        // GET api/products/paged?keyword=sua&categoryId=1&pageNumber=1&pageSize=5
+        // (Buổi 6: Tiết 1 & 2 + Bài tập 6.2)
+        // =====================================================
+        [HttpGet("paged")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPagedProducts(
+            [FromQuery] string? keyword,
+            [FromQuery] int? categoryId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5)
+        {
+            // 1. Kiểm tra tham số trang đầu vào hợp lệ
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 5;
+
+            // 2. Khởi tạo truy vấn LINQ IQueryable kết hợp Eager Loading (.Include)
+            var query = _db.Products
+                .Include(p => p.Category)
+                .AsNoTracking()
+                .AsQueryable();
+
+            // 3. Lọc theo nhóm hàng (Bài tập 6.2)
+            if (categoryId.HasValue && categoryId.Value > 0)
+            {
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            // 4. Lọc theo từ khóa tìm kiếm
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                string search = keyword.Trim().ToLower();
+                query = query.Where(p => p.ProductName.ToLower().Contains(search)
+                                       || p.Barcode.Contains(search));
+            }
+
+            // 5. Đếm tổng số lượng bản ghi thỏa mãn điều kiện
+            int totalItems = await query.CountAsync();
+
+            // 6. Tính toán tổng số trang
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+            if (totalPages == 0) totalPages = 1;
+
+            // 7. Áp dụng toán tử Skip và Take để phân trang trực tiếp dưới SQL Server
+            var items = await query
+                .OrderBy(p => p.ProductId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductItemDto
+                {
+                    ProductId = p.ProductId,
+                    Barcode = p.Barcode,
+                    ProductName = p.ProductName,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category != null ? p.Category.CategoryName : string.Empty
+                })
+                .ToListAsync();
+
+            // 8. Đóng gói kết quả trả về cho Client
+            var response = new PagedResult<ProductItemDto>
+            {
+                CurrentPage = pageNumber,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                Items = items
+            };
+
+            return Ok(response);
+        }
+
+        // =====================================================
         // GET api/products
         // =====================================================
         [HttpGet]

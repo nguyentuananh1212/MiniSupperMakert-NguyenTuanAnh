@@ -161,11 +161,52 @@
             pnlButtons.Name = "pnlButtons";
             pnlButtons.Padding = new Padding(0, 10, 0, 0);
 
-            StyleAction(btnAdd, "Thêm mới", "btnAdd", green, 3);
+            // btnAdd
+            btnAdd.BackColor = green;
+            btnAdd.Cursor = Cursors.Hand;
+            btnAdd.Dock = DockStyle.Left;
+            btnAdd.FlatAppearance.BorderSize = 0;
+            btnAdd.FlatStyle = FlatStyle.Flat;
+            btnAdd.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+            btnAdd.ForeColor = Color.White;
+            btnAdd.Margin = new Padding(0, 0, 10, 0);
+            btnAdd.Name = "btnAdd";
+            btnAdd.Size = new Size(130, 48);
+            btnAdd.TabIndex = 3;
+            btnAdd.Text = "Thêm mới";
+            btnAdd.UseVisualStyleBackColor = false;
             btnAdd.Click += btnAdd_Click;
-            StyleAction(btnUpdate, "Cập nhật", "btnUpdate", blue, 4);
+
+            // btnUpdate
+            btnUpdate.BackColor = blue;
+            btnUpdate.Cursor = Cursors.Hand;
+            btnUpdate.Dock = DockStyle.Left;
+            btnUpdate.FlatAppearance.BorderSize = 0;
+            btnUpdate.FlatStyle = FlatStyle.Flat;
+            btnUpdate.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+            btnUpdate.ForeColor = Color.White;
+            btnUpdate.Margin = new Padding(0, 0, 10, 0);
+            btnUpdate.Name = "btnUpdate";
+            btnUpdate.Size = new Size(130, 48);
+            btnUpdate.TabIndex = 4;
+            btnUpdate.Text = "Cập nhật";
+            btnUpdate.UseVisualStyleBackColor = false;
             btnUpdate.Click += btnUpdate_Click;
-            StyleAction(btnDelete, "Xóa", "btnDelete", red, 5);
+
+            // btnDelete
+            btnDelete.BackColor = red;
+            btnDelete.Cursor = Cursors.Hand;
+            btnDelete.Dock = DockStyle.Left;
+            btnDelete.FlatAppearance.BorderSize = 0;
+            btnDelete.FlatStyle = FlatStyle.Flat;
+            btnDelete.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
+            btnDelete.ForeColor = Color.White;
+            btnDelete.Margin = new Padding(0, 0, 10, 0);
+            btnDelete.Name = "btnDelete";
+            btnDelete.Size = new Size(130, 48);
+            btnDelete.TabIndex = 5;
+            btnDelete.Text = "Xóa";
+            btnDelete.UseVisualStyleBackColor = false;
             btnDelete.Click += btnDelete_Click;
 
             // ===== groupBox2: Danh sách (Fill) =====
@@ -245,22 +286,6 @@
             pnlButtons.ResumeLayout(false);
             pnlRight.ResumeLayout(false);
             ResumeLayout(false);
-        }
-
-        private static void StyleAction(Button b, string text, string name, Color back, int tab)
-        {
-            b.BackColor = back;
-            b.Cursor = Cursors.Hand;
-            b.FlatAppearance.BorderSize = 0;
-            b.FlatStyle = FlatStyle.Flat;
-            b.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            b.ForeColor = Color.White;
-            b.Margin = new Padding(0, 0, 8, 0);
-            b.Name = name;
-            b.Size = new Size(112, 40);
-            b.TabIndex = tab;
-            b.Text = text;
-            b.UseVisualStyleBackColor = false;
         }
 
         #endregion

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hình 2.4: Sơ đồ thực thể liên kết hoàn chỉnh (ERD) 6 bảng CSDL</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+            max-width: 1220px;
+            width: 100%;
+        }
+        .instruction {
+            background-color: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: #14532d;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .instruction strong { color: #15803d; }
+        .diagram-wrapper {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+            padding: 5px;
+        }
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .caption {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #334155;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instruction">
+            📌 <strong>HƯỚNG DẪN DÁN VÀO ĐỒ ÁN - HÌNH 2.4:</strong><br>
+            1. Đây là <strong>Sơ đồ thực thể liên kết (Database Diagram)</strong> chuẩn mực của CSDL <code>NguyenTuanAnh_MiniSupperMakert</code> trên SQL Server gồm 6 bảng thực thể chuẩn 3NF: <strong>Categories, Products, OrderDetails, Orders, Customers, Users</strong> kèm đầy đủ các đường nối khóa ngoại (🔑 Khóa chính ➔ ∞ Khóa ngoại).<br>
+            2. Bạn dùng phím tắt <strong>Windows + Shift + S</strong> quét chụp trọn khung sơ đồ bên dưới.<br>
+            3. Quay lại file Word tại mục <strong>2.3.1</strong>, xóa khung <code>[Hình 2.4]</code> và bấm <strong>Ctrl + V</strong> dán vào.
+        </div>
+
+        <div class="diagram-wrapper">
+            <img src="Hinh_2.4_ERD_Database_Diagram.svg" alt="Sơ đồ ERD 6 bảng CSDL" style="width: 100%; height: auto;" />
+        </div>
+
+        <div class="caption">
+            Hình 2.4: Sơ đồ thực thể liên kết hoàn chỉnh (ERD) gồm 6 bảng thực thể nghiệp vụ cốt lõi
+        </div>
+    </div>
+</body>
+</html>

@@ -255,7 +255,32 @@ namespace MiniSupermarket.WinForms
         private void btnMinus_Click(object? sender, EventArgs e) { ChangeSelectedQuantity(-1); txtBarcode.Focus(); }
         private void btnDeleteRow_Click(object? sender, EventArgs e) { DeleteSelectedLine(); txtBarcode.Focus(); }
 
-        private decimal GetTotal() => _cart.Sum(x => x.TotalPrice);
+                // Tiêu chí 47: Tính toán tổng tiền sau khi trừ điểm tích lũy
+        private decimal GetGrossTotal() => _cart.Sum(x => x.TotalPrice);
+        private decimal GetPointsDiscount()
+        {
+            if (_customer != null && chkRedeemPoints.Checked && nudPointsToRedeem.Value > 0)
+            {
+                return nudPointsToRedeem.Value * 1000m;
+            }
+            return 0m;
+        }
+        private decimal GetTotal() => Math.Max(0, GetGrossTotal() - GetPointsDiscount());
+
+        // Sự kiện khi chọn đổi điểm thưởng
+        private void chkRedeemPoints_CheckedChanged(object? sender, EventArgs e)
+        {
+            nudPointsToRedeem.Enabled = chkRedeemPoints.Checked;
+            UpdateCartDisplay();
+        }
+
+        private void nudPointsToRedeem_ValueChanged(object? sender, EventArgs e)
+        {
+            if (chkRedeemPoints.Checked)
+            {
+                UpdateCartDisplay();
+            }
+        }
 
         // =====================================================
         // KHÁCH HÀNG THÂN THIẾT

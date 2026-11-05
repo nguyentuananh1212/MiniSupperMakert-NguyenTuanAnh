@@ -2,7 +2,7 @@
  * Họ tên sinh viên: Nguyễn Tuấn Anh
  * Mô tả: DTO hứng dữ liệu kết quả thống kê từ Stored Procedure doanh thu ca bán lẻ
  */
-namespace MiniSupermarket.API.Models
+namespace MiniSupermarket.API.DTOs
 {
     public class CashierRevenueDto
     {

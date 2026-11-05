@@ -50,6 +50,11 @@
             labelCustomerPhone = new Label();
             txtCustomerPhone = new TextBox();
             lblCustomerName = new Label();
+            pnlLoyaltyPoints = new Panel();
+            chkRedeemPoints = new CheckBox();
+            nudPointsToRedeem = new NumericUpDown();
+            lblDiscountNotice = new Label();
+            lblTotalBreakdown = new Label();
             pnlTotal = new Panel();
             labelTotal = new Label();
             lblTotalAmount = new Label();
@@ -69,6 +74,7 @@
             btnClearCart = new Button();
 
             ((System.ComponentModel.ISupportInitialize)dgvCart).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudPointsToRedeem).BeginInit();
             pnlLeft.SuspendLayout();
             pnlScan.SuspendLayout();
             pnlBarcodeLine.SuspendLayout();
@@ -267,7 +273,7 @@
             tblRight.Dock = DockStyle.Fill;
             tblRight.Name = "tblRight";
             tblRight.RowCount = 9;
-            tblRight.RowStyles.Add(new RowStyle(SizeType.Absolute, 92F));   // 0 Khách hàng
+            tblRight.RowStyles.Add(new RowStyle(SizeType.Absolute, 160F));  // 0 Khách hàng
             tblRight.RowStyles.Add(new RowStyle(SizeType.Absolute, 112F));  // 1 Tổng tiền
             tblRight.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));   // 2 label tiền khách đưa
             tblRight.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));   // 3 ô nhập
@@ -385,8 +391,11 @@
 
             // Nút tiền nhanh
             tblQuickCash.ColumnCount = 5;
-            for (int i = 0; i < 5; i++)
-                tblQuickCash.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tblQuickCash.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tblQuickCash.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tblQuickCash.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tblQuickCash.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+            tblQuickCash.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
             tblQuickCash.Dock = DockStyle.Fill;
             tblQuickCash.Margin = new Padding(0, 0, 0, 8);
             tblQuickCash.Name = "tblQuickCash";
@@ -480,6 +489,7 @@
             Load += FormPOS_Load;
 
             ((System.ComponentModel.ISupportInitialize)dgvCart).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudPointsToRedeem).EndInit();
             pnlLeft.ResumeLayout(false);
             pnlScan.ResumeLayout(false);
             pnlBarcodeLine.ResumeLayout(false);
@@ -560,6 +570,11 @@
         private Label labelCustomerPhone;
         private TextBox txtCustomerPhone;
         private Label lblCustomerName;
+        private Panel pnlLoyaltyPoints;
+        private CheckBox chkRedeemPoints;
+        private NumericUpDown nudPointsToRedeem;
+        private Label lblDiscountNotice;
+        private Label lblTotalBreakdown;
 
         private Panel pnlTotal;
         private Label labelTotal;

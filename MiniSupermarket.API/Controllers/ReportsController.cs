@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Họ tên sinh viên: Nguyễn Tuấn Anh
  * Mô tả: Controller Báo cáo - Kết hợp EF Core và ADO.NET Stored Procedure
  * Tiết 3: Đầy đủ sp_GetRevenueByCashier, sp_GetRevenueByDateRange (Bài 3.1), sp_GetTop5SellingProducts (Bài 3.2)
@@ -289,6 +289,130 @@ namespace MiniSupermarket.API.Controllers
                 generatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
                 topCount = topList.Count,
                 data = topList
+            });
+        }
+
+        // =========================================================================
+        // TIÊU CHÍ 44: GET api/reports/dashboard-summary
+        // Nghiệp vụ: Hiển thị 4 thẻ số liệu to, nổi bật trên đỉnh màn hình:
+        // 1. Doanh thu hôm nay (VNĐ)
+        // 2. Tổng số hóa đơn đã xuất
+        // 3. Số lượng khách hàng mới đăng ký / thành viên
+        // 4. Số mặt hàng sắp hết hàng (tồn kho <= 10)
+        // Kỹ thuật: Viết 1 Action API GET api/reports/dashboard-summary dùng ADO.NET ExecuteScalar hoặc LINQ Count(), Sum()
+        // =========================================================================
+        [HttpGet("dashboard-summary")]
+        public async Task<IActionResult> GetDashboardSummary()
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+
+            // 1. Doanh thu hôm nay (VNĐ)
+            decimal todayRevenue = await _db.Orders.AsNoTracking()
+                .Where(o => o.OrderDate >= today && o.OrderDate < tomorrow)
+                .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+
+            // 2. Tổng số hóa đơn đã xuất
+            int totalOrders = await _db.Orders.AsNoTracking()
+                .CountAsync();
+
+            // 3. Số lượng khách hàng đã đăng ký
+            int newCustomers = await _db.Customers.AsNoTracking()
+                .CountAsync();
+
+            // 4. Số mặt hàng sắp hết hàng (tồn kho <= 10)
+            int lowStockCount = await _db.Products.AsNoTracking()
+                .CountAsync(p => p.StockQuantity <= 10);
+
+            return Ok(new
+            {
+                success = true,
+                todayRevenue,
+                totalOrders,
+                newCustomers,
+                lowStockCount
+            });
+        }
+
+        // =========================================================================
+        // TIÊU CHÍ 45: GET api/reports/revenue-by-date-chart?fromDate=...&toDate=...
+        // Nghiệp vụ: Quản lý chọn khoảng thời gian (Từ ngày --> Đến ngày), hệ thống hiển thị biểu đồ so sánh doanh thu từng ngày
+        // Kỹ thuật: Phía API gom nhóm GROUP BY CAST(OrderDate AS DATE) (tương đương CreatedDate)
+        // =========================================================================
+        [HttpGet("revenue-by-date-chart")]
+        public async Task<IActionResult> GetRevenueByDateChart([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
+        {
+            DateTime from = (fromDate ?? DateTime.Today.AddDays(-6)).Date;
+            DateTime to = (toDate ?? DateTime.Today).Date.AddDays(1).AddTicks(-1);
+
+            if (from > to)
+            {
+                return BadRequest(new { message = "Từ ngày không được lớn hơn Đến ngày!" });
+            }
+
+            var dailyData = await _db.Orders.AsNoTracking()
+                .Where(o => o.OrderDate >= from && o.OrderDate <= to)
+                .GroupBy(o => o.OrderDate.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    TotalOrders = g.Count(),
+                    TotalRevenue = g.Sum(x => x.TotalAmount)
+                })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                success = true,
+                fromDate = from.ToString("yyyy-MM-dd"),
+                toDate = to.ToString("yyyy-MM-dd"),
+                data = dailyData
+            });
+        }
+
+        // =========================================================================
+        // TIÊU CHÍ 46: GET api/reports/top-selling-linq
+        // Nghiệp vụ: Liệt kê 5 mặt hàng tiêu thụ nhanh nhất tại quầy POS để thủ kho chủ động nhập hàng
+        // Kỹ thuật: LINQ GroupBy(od => od.ProductId)--> OrderByDescending(Sum Quantity) --> Take(5)
+        // =========================================================================
+        [HttpGet("top-selling-linq")]
+        public async Task<IActionResult> GetTopSellingLinq()
+        {
+            var top5 = await _db.OrderDetails.AsNoTracking()
+                .GroupBy(od => od.ProductId)
+                .OrderByDescending(g => g.Sum(od => od.Quantity))
+                .Take(5)
+                .Select(g => new
+                {
+                    ProductId = g.Key,
+                    Quantity = g.Sum(od => od.Quantity),
+                    Revenue = g.Sum(od => od.Quantity * od.UnitPrice)
+                })
+                .ToListAsync();
+
+            var ids = top5.Select(t => t.ProductId).ToList();
+            var products = await _db.Products.AsNoTracking()
+                .Where(p => ids.Contains(p.ProductId))
+                .ToDictionaryAsync(p => p.ProductId, p => new { p.ProductName, p.Barcode, p.StockQuantity });
+
+            var result = top5.Select((t, idx) => new
+            {
+                Rank = idx + 1,
+                t.ProductId,
+                Barcode = products.TryGetValue(t.ProductId, out var p) ? p.Barcode : "",
+                ProductName = products.TryGetValue(t.ProductId, out var p2) ? p2.ProductName : $"SP #{t.ProductId}",
+                CurrentStock = products.TryGetValue(t.ProductId, out var p3) ? p3.StockQuantity : 0,
+                TotalSoldQuantity = t.Quantity,
+                TotalRevenue = t.Revenue
+            }).ToList();
+
+            return Ok(new
+            {
+                success = true,
+                generatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                topCount = result.Count,
+                data = result
             });
         }
     }

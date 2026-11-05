@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 460" width="100%" height="100%" style="background:#ffffff; font-family:'Segoe UI', Arial, sans-serif;">
+  <defs>
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-5%" y="-10%" width="110%" height="125%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.08"/>
+    </filter>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.06"/>
+    </filter>
+
+    <!-- Arrow Marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563EB" />
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669" />
+    </marker>
+
+    <!-- Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+    <linearGradient id="stage1Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#EFF6FF"/>
+      <stop offset="100%" stop-color="#DBEAFE"/>
+    </linearGradient>
+    <linearGradient id="stage2Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ECFDF5"/>
+      <stop offset="100%" stop-color="#D1FAE5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Title Banner -->
+  <rect x="30" y="20" width="1040" height="52" rx="10" fill="url(#headerGrad)" filter="url(#shadow)" />
+  <text x="550" y="52" fill="#FFFFFF" font-size="18" font-weight="700" text-anchor="middle" letter-spacing="0.5">
+    HÌNH 1.1: MÔ HÌNH KIẾN TRÚC BIÊN DỊCH VÀ THỰC THI MÃ NGUỒN .NET (CIL, CoreCLR &amp; JIT COMPILER)
+  </text>
+
+  <!-- ================= GIAI ĐOẠN 1: COMPILE TIME ================= -->
+  <rect x="30" y="90" width="480" height="340" rx="14" fill="url(#stage1Grad)" stroke="#BFDBFE" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="45" y="105" width="450" height="32" rx="6" fill="#2563EB" />
+  <text x="270" y="126" fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle">
+    GIAI ĐOẠN 1: BIÊN DỊCH MÃ NGUỒN (COMPILE TIME)
+  </text>
+
+  <!-- Block 1: C# Source Code -->
+  <rect x="55" y="155" width="175" height="105" rx="10" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5" filter="url(#cardShadow)"/>
+  <rect x="55" y="155" width="175" height="28" rx="10" fill="#DBEAFE"/>
+  <rect x="55" y="173" width="175" height="10" fill="#DBEAFE"/>
+  <text x="142" y="174" fill="#1E40AF" font-size="12" font-weight="700" text-anchor="middle">C# Source Code</text>
+  <text x="142" y="202" fill="#334155" font-size="11" text-anchor="middle">Các file mã nguồn (*.cs)</text>
+  <text x="142" y="220" fill="#64748B" font-size="10" text-anchor="middle">• MiniSupermarket.API</text>
+  <text x="142" y="236" fill="#64748B" font-size="10" text-anchor="middle">• WinForms Controllers</text>
+
+  <!-- Arrow 1 -> Roslyn -->
+  <line x1="230" y1="207" x2="275" y2="207" stroke="#2563EB" stroke-width="2.5" marker-end="url(#arrow)" />
+
+  <!-- Block 2: Roslyn Compiler -->
+  <rect x="285" y="155" width="205" height="105" rx="10" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5" filter="url(#cardShadow)"/>
+  <rect x="285" y="155" width="205" height="28" rx="10" fill="#DBEAFE"/>
+  <rect x="285" y="173" width="205" height="10" fill="#DBEAFE"/>
+  <text x="387" y="174" fill="#1E40AF" font-size="12" font-weight="700" text-anchor="middle">Roslyn C# Compiler</text>
+  <text x="387" y="200" fill="#334155" font-size="11" font-weight="600" text-anchor="middle">(csc.exe / .NET SDK 8.0)</text>
+  <text x="387" y="220" fill="#64748B" font-size="10" text-anchor="middle">• Phân tích cú pháp (Syntax)</text>
+  <text x="387" y="236" fill="#64748B" font-size="10" text-anchor="middle">• Kiểm tra kiểu &amp; Tối ưu hóa</text>
+
+  <!-- Arrow down from Roslyn to CIL PE -->
+  <path d="M 387 260 L 387 290 L 270 290" fill="none" stroke="#2563EB" stroke-width="2" />
+  <line x1="270" y1="290" x2="270" y2="305" stroke="#2563EB" stroke-width="2" marker-end="url(#arrow)" />
+
+  <!-- Block 3: CIL / Metadata (PE File) -->
+  <rect x="55" y="315" width="435" height="100" rx="10" fill="#FFFFFF" stroke="#3B82F6" stroke-width="2" filter="url(#cardShadow)"/>
+  <rect x="55" y="315" width="435" height="28" rx="10" fill="#2563EB"/>
+  <rect x="55" y="333" width="435" height="10" fill="#2563EB"/>
+  <text x="272" y="334" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="middle">MÃ TRUNG GIAN .NET ASSEMBLY (PE FILE: .DLL / .EXE)</text>
+  
+  <rect x="75" y="352" width="180" height="50" rx="6" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1"/>
+  <text x="165" y="372" fill="#1E3A8A" font-size="11" font-weight="700" text-anchor="middle">CIL / MSIL Bytecode</text>
+  <text x="165" y="390" fill="#475569" font-size="10" text-anchor="middle">Mã lệnh trung gian độc lập CPU</text>
+
+  <rect x="285" y="352" width="185" height="50" rx="6" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1"/>
+  <text x="377" y="372" fill="#1E3A8A" font-size="11" font-weight="700" text-anchor="middle">Type Metadata &amp; Manifest</text>
+  <text x="377" y="390" fill="#475569" font-size="10" text-anchor="middle">Mô tả class, method, tham chiếu</text>
+
+  <!-- Big Arrow transitioning Stage 1 -> Stage 2 -->
+  <path d="M 490 365 L 545 365" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="6,4"/>
+  <line x1="535" y1="365" x2="555" y2="365" stroke="#2563EB" stroke-width="3" marker-end="url(#arrow)" />
+  <text x="525" y="350" fill="#2563EB" font-size="10" font-weight="700" text-anchor="middle">Nạp Assembly</text>
+
+  <!-- ================= GIAI ĐOẠN 2: RUNTIME ================= -->
+  <rect x="570" y="90" width="500" height="340" rx="14" fill="url(#stage2Grad)" stroke="#A7F3D0" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="585" y="105" width="470" height="32" rx="6" fill="#059669" />
+  <text x="820" y="126" fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle">
+    GIAI ĐOẠN 2: THỰC THI THỜI GIAN THỰC (CLR RUNTIME)
+  </text>
+
+  <!-- Block 4: CoreCLR Box -->
+  <rect x="585" y="150" width="470" height="175" rx="10" fill="#FFFFFF" stroke="#10B981" stroke-width="1.5" filter="url(#cardShadow)"/>
+  <rect x="585" y="150" width="470" height="28" rx="10" fill="#D1FAE5"/>
+  <rect x="585" y="168" width="470" height="10" fill="#D1FAE5"/>
+  <text x="820" y="169" fill="#065F46" font-size="12" font-weight="700" text-anchor="middle">CoreCLR (Common Language Runtime - Môi trường thực thi)</text>
+
+  <!-- Sub-components of CoreCLR -->
+  <rect x="600" y="188" width="135" height="58" rx="6" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+  <text x="667" y="210" fill="#166534" font-size="11" font-weight="700" text-anchor="middle">Class Loader</text>
+  <text x="667" y="228" fill="#4B5563" font-size="10" text-anchor="middle">&amp; Type Resolver</text>
+
+  <rect x="745" y="188" width="150" height="58" rx="6" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+  <text x="820" y="206" fill="#166534" font-size="11" font-weight="700" text-anchor="middle">Security Manager</text>
+  <text x="820" y="222" fill="#166534" font-size="11" font-weight="700" text-anchor="middle">&amp; IL Verifier</text>
+  <text x="820" y="238" fill="#4B5563" font-size="9.5" text-anchor="middle">(Kiểm tra an toàn bộ nhớ)</text>
+
+  <rect x="905" y="188" width="135" height="58" rx="6" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+  <text x="972" y="210" fill="#166534" font-size="11" font-weight="700" text-anchor="middle">Garbage Collector</text>
+  <text x="972" y="228" fill="#4B5563" font-size="10" text-anchor="middle">(Thu gom bộ nhớ rác)</text>
+
+  <!-- Core Component: JIT Compiler -->
+  <rect x="600" y="258" width="440" height="56" rx="8" fill="#059669" filter="url(#cardShadow)"/>
+  <text x="820" y="282" fill="#FFFFFF" font-size="13" font-weight="700" text-anchor="middle">JIT Compiler (RyuJIT - Just-In-Time)</text>
+  <text x="820" y="302" fill="#D1FAE5" font-size="11" text-anchor="middle">Biên dịch CIL sang mã máy thực thi tại thời điểm chạy hàm (Run-time)</text>
+
+  <!-- Arrow down from JIT to Machine Code -->
+  <line x1="820" y1="325" x2="820" y2="348" stroke="#059669" stroke-width="2.5" marker-end="url(#arrow-green)" />
+
+  <!-- Block 5: Native Machine Code -->
+  <rect x="625" y="355" width="390" height="60" rx="10" fill="#1E293B" stroke="#0F172A" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="820" y="380" fill="#38BDF8" font-size="13" font-weight="700" text-anchor="middle">MÃ MÁY BẢN ĐỊA (NATIVE MACHINE CODE)</text>
+  <text x="820" y="400" fill="#94A3B8" font-size="11" text-anchor="middle">Thực thi trực tiếp trên phần cứng CPU (x86, x64, ARM64) với tốc độ cao ~ C++</text>
+
+</svg>

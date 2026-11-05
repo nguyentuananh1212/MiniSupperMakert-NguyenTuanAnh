@@ -2,7 +2,7 @@
  * Họ tên sinh viên: Nguyễn Tuấn Anh
  * Mô tả: DTO hứng dữ liệu thống kê Top sản phẩm bán chạy nhất từ Stored Procedure (Bài tập 3.2)
  */
-namespace MiniSupermarket.API.Models
+namespace MiniSupermarket.API.DTOs
 {
     public class TopSellingProductDto
     {

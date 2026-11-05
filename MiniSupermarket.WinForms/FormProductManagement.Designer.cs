@@ -10,11 +10,18 @@ namespace MiniSupermarket.WinForms
 
         private Panel panelTop;
         private Panel panelDetail;
+        private Panel panelPaging;
         private DataGridView dgvProducts;
 
         private TextBox txtSearchBarcode;
         private ComboBox cboFilterCategory;
         private Button btnSearch;
+        private Button btnExportExcel;
+        private Label lblLowStockBadge;
+
+        private Button btnPrev;
+        private Label lblPaging;
+        private Button btnNext;
 
         private Label lblId;
         private Label lblBarcode;
@@ -50,6 +57,8 @@ namespace MiniSupermarket.WinForms
             txtSearchBarcode = new TextBox();
             cboFilterCategory = new ComboBox();
             btnSearch = new Button();
+            btnExportExcel = new Button();
+            lblLowStockBadge = new Label();
             panelDetail = new Panel();
             lblId = new Label();
             lblBarcode = new Label();
@@ -67,9 +76,14 @@ namespace MiniSupermarket.WinForms
             btnUpdate = new Button();
             btnDelete = new Button();
             btnLoad = new Button();
+            panelPaging = new Panel();
+            btnPrev = new Button();
+            lblPaging = new Label();
+            btnNext = new Button();
             dgvProducts = new DataGridView();
             panelTop.SuspendLayout();
             panelDetail.SuspendLayout();
+            panelPaging.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudPrice).BeginInit();
             ((System.ComponentModel.ISupportInitialize)nudStock).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvProducts).BeginInit();
@@ -81,6 +95,8 @@ namespace MiniSupermarket.WinForms
             panelTop.Controls.Add(txtSearchBarcode);
             panelTop.Controls.Add(cboFilterCategory);
             panelTop.Controls.Add(btnSearch);
+            panelTop.Controls.Add(btnExportExcel);
+            panelTop.Controls.Add(lblLowStockBadge);
             panelTop.Dock = DockStyle.Top;
             panelTop.Name = "panelTop";
             panelTop.Size = new Size(1050, 60);
@@ -102,6 +118,7 @@ namespace MiniSupermarket.WinForms
             cboFilterCategory.Name = "cboFilterCategory";
             cboFilterCategory.Size = new Size(230, 23);
             cboFilterCategory.TabIndex = 1;
+            cboFilterCategory.SelectedIndexChanged += cboFilterCategory_SelectedIndexChanged;
             // 
             // btnSearch
             // 
@@ -117,6 +134,32 @@ namespace MiniSupermarket.WinForms
             btnSearch.Text = "Tìm kiếm";
             btnSearch.UseVisualStyleBackColor = false;
             btnSearch.Click += btnSearch_Click;
+            // 
+            // btnExportExcel
+            // 
+            btnExportExcel.BackColor = Color.FromArgb(46, 160, 67);
+            btnExportExcel.Cursor = Cursors.Hand;
+            btnExportExcel.FlatAppearance.BorderSize = 0;
+            btnExportExcel.FlatStyle = FlatStyle.Flat;
+            btnExportExcel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnExportExcel.ForeColor = Color.White;
+            btnExportExcel.Location = new Point(695, 14);
+            btnExportExcel.Name = "btnExportExcel";
+            btnExportExcel.Size = new Size(110, 32);
+            btnExportExcel.TabIndex = 3;
+            btnExportExcel.Text = "📥 Xuất Excel";
+            btnExportExcel.UseVisualStyleBackColor = false;
+            btnExportExcel.Click += btnExportExcel_Click;
+            // 
+            // lblLowStockBadge
+            // 
+            lblLowStockBadge.AutoSize = true;
+            lblLowStockBadge.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblLowStockBadge.ForeColor = Color.FromArgb(200, 30, 30);
+            lblLowStockBadge.Location = new Point(815, 22);
+            lblLowStockBadge.Name = "lblLowStockBadge";
+            lblLowStockBadge.Size = new Size(0, 15);
+            lblLowStockBadge.TabIndex = 4;
             // 
             // panelDetail
             // 
@@ -296,6 +339,60 @@ namespace MiniSupermarket.WinForms
             btnLoad.UseVisualStyleBackColor = false;
             btnLoad.Click += btnLoad_Click;
             // 
+            // panelPaging
+            // 
+            panelPaging.BackColor = Color.White;
+            panelPaging.Controls.Add(btnPrev);
+            panelPaging.Controls.Add(lblPaging);
+            panelPaging.Controls.Add(btnNext);
+            panelPaging.Dock = DockStyle.Bottom;
+            panelPaging.Name = "panelPaging";
+            panelPaging.Size = new Size(720, 48);
+            panelPaging.TabIndex = 3;
+            // 
+            // btnPrev
+            // 
+            btnPrev.BackColor = Color.FromArgb(41, 100, 180);
+            btnPrev.Cursor = Cursors.Hand;
+            btnPrev.FlatAppearance.BorderSize = 0;
+            btnPrev.FlatStyle = FlatStyle.Flat;
+            btnPrev.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnPrev.ForeColor = Color.White;
+            btnPrev.Location = new Point(15, 8);
+            btnPrev.Name = "btnPrev";
+            btnPrev.Size = new Size(130, 32);
+            btnPrev.TabIndex = 0;
+            btnPrev.Text = "<< Trang trước";
+            btnPrev.UseVisualStyleBackColor = false;
+            btnPrev.Click += btnPrev_Click;
+            // 
+            // lblPaging
+            // 
+            lblPaging.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            lblPaging.ForeColor = Color.FromArgb(35, 40, 55);
+            lblPaging.Location = new Point(155, 8);
+            lblPaging.Name = "lblPaging";
+            lblPaging.Size = new Size(240, 32);
+            lblPaging.TabIndex = 1;
+            lblPaging.Text = "Trang 1 / 1 (Tổng: 0 SP)";
+            lblPaging.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // btnNext
+            // 
+            btnNext.BackColor = Color.FromArgb(41, 100, 180);
+            btnNext.Cursor = Cursors.Hand;
+            btnNext.FlatAppearance.BorderSize = 0;
+            btnNext.FlatStyle = FlatStyle.Flat;
+            btnNext.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnNext.ForeColor = Color.White;
+            btnNext.Location = new Point(405, 8);
+            btnNext.Name = "btnNext";
+            btnNext.Size = new Size(130, 32);
+            btnNext.TabIndex = 2;
+            btnNext.Text = "Trang sau >>";
+            btnNext.UseVisualStyleBackColor = false;
+            btnNext.Click += btnNext_Click;
+            // 
             // dgvProducts
             // 
             dgvProducts.AllowUserToAddRows = false;
@@ -320,6 +417,7 @@ namespace MiniSupermarket.WinForms
             BackColor = Color.FromArgb(244, 245, 247);
             ClientSize = new Size(1050, 660);
             Controls.Add(dgvProducts);
+            Controls.Add(panelPaging);
             Controls.Add(panelDetail);
             Controls.Add(panelTop);
             Name = "FormProductManagement";
@@ -329,6 +427,7 @@ namespace MiniSupermarket.WinForms
             panelTop.PerformLayout();
             panelDetail.ResumeLayout(false);
             panelDetail.PerformLayout();
+            panelPaging.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)nudPrice).EndInit();
             ((System.ComponentModel.ISupportInitialize)nudStock).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvProducts).EndInit();

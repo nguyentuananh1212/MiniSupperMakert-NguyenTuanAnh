@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 720" width="100%" height="100%" style="background:#ffffff; font-family:'Segoe UI', Arial, sans-serif;">
+  <defs>
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.08"/>
+    </filter>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.06"/>
+    </filter>
+
+    <!-- Arrow Marker -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284C7" />
+    </marker>
+    <marker id="arrow-dark" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#334155" />
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669" />
+    </marker>
+
+    <!-- Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Title Banner -->
+  <rect x="30" y="16" width="1090" height="50" rx="10" fill="url(#headerGrad)" filter="url(#shadow)" />
+  <text x="575" y="47" fill="#FFFFFF" font-size="16" font-weight="700" text-anchor="middle" letter-spacing="0.5">
+    HÌNH 2.3: SƠ ĐỒ TUẦN HOÀN DÒNG CHẢY DỮ LIỆU (DATA FLOW DIAGRAM - DFD MỨC 1) PHÂN HỆ BÁN LẺ POS
+  </text>
+
+  <!-- ================= EXTERNAL ENTITIES ================= -->
+  <!-- Entity 1: Thu ngân (Top Left) -->
+  <rect x="50" y="160" width="150" height="70" rx="8" fill="#1E293B" stroke="#0F172A" stroke-width="2" filter="url(#shadow)"/>
+  <text x="125" y="195" fill="#38BDF8" font-size="13" font-weight="700" text-anchor="middle">THỰC THỂ NGOÀI</text>
+  <text x="125" y="215" fill="#FFFFFF" font-size="13.5" font-weight="700" text-anchor="middle">THU NGÂN (POS)</text>
+
+  <!-- Entity 2: Khách hàng (Bottom Left) -->
+  <rect x="50" y="470" width="150" height="70" rx="8" fill="#1E293B" stroke="#0F172A" stroke-width="2" filter="url(#shadow)"/>
+  <text x="125" y="505" fill="#38BDF8" font-size="13" font-weight="700" text-anchor="middle">THỰC THỂ NGOÀI</text>
+  <text x="125" y="525" fill="#FFFFFF" font-size="13.5" font-weight="700" text-anchor="middle">KHÁCH HÀNG</text>
+
+
+  <!-- ================= PROCESSES (CIRCLES / ROUNDED RECTS) ================= -->
+
+  <!-- Process 1.0: Tra cứu Barcode -->
+  <rect x="320" y="110" width="220" height="75" rx="14" fill="#EFF6FF" stroke="#0284C7" stroke-width="2" filter="url(#cardShadow)"/>
+  <rect x="320" y="110" width="220" height="24" rx="14" fill="#0284C7"/>
+  <rect x="320" y="122" width="220" height="12" fill="#0284C7"/>
+  <text x="430" y="126" fill="#FFFFFF" font-size="11.5" font-weight="700" text-anchor="middle">1.0: Tra cứu mã vạch</text>
+  <text x="430" y="152" fill="#1E3A8A" font-size="12" font-weight="600" text-anchor="middle">Quét Barcode &amp; Nạp giỏ hàng</text>
+  <text x="430" y="170" fill="#64748B" font-size="10.5" text-anchor="middle">(Kiểm tra tồn kho qua ADO.NET)</text>
+
+  <!-- Process 2.0: Nhận diện khách hàng & Đổi điểm -->
+  <rect x="320" y="250" width="220" height="75" rx="14" fill="#FAF5FF" stroke="#7C3AED" stroke-width="2" filter="url(#cardShadow)"/>
+  <rect x="320" y="250" width="220" height="24" rx="14" fill="#7C3AED"/>
+  <rect x="320" y="262" width="220" height="12" fill="#7C3AED"/>
+  <text x="430" y="266" fill="#FFFFFF" font-size="11.5" font-weight="700" text-anchor="middle">2.0: Quản lý hội viên</text>
+  <text x="430" y="292" fill="#5B21B6" font-size="12" font-weight="600" text-anchor="middle">Tra cứu SĐT &amp; Đổi điểm</text>
+  <text x="430" y="310" fill="#64748B" font-size="10.5" text-anchor="middle">(1 điểm = 1.000 VNĐ giảm giá)</text>
+
+  <!-- Process 3.0: Tính tiền thừa -->
+  <rect x="320" y="390" width="220" height="75" rx="14" fill="#EFF6FF" stroke="#0284C7" stroke-width="2" filter="url(#cardShadow)"/>
+  <rect x="320" y="390" width="220" height="24" rx="14" fill="#0284C7"/>
+  <rect x="320" y="402" width="220" height="12" fill="#0284C7"/>
+  <text x="430" y="406" fill="#FFFFFF" font-size="11.5" font-weight="700" text-anchor="middle">3.0: Tính toán tiền hàng</text>
+  <text x="430" y="432" fill="#1E3A8A" font-size="12" font-weight="600" text-anchor="middle">Tính tổng &amp; Tiền thừa trả khách</text>
+  <text x="430" y="450" fill="#64748B" font-size="10.5" text-anchor="middle">Tiền thừa = Tiền khách đưa - Phải trả</text>
+
+  <!-- Process 4.0: Xử lý giao dịch thanh toán (ACID) -->
+  <rect x="320" y="530" width="220" height="85" rx="14" fill="#ECFDF5" stroke="#059669" stroke-width="2.2" filter="url(#cardShadow)"/>
+  <rect x="320" y="530" width="220" height="26" rx="14" fill="#059669"/>
+  <rect x="320" y="544" width="220" height="12" fill="#059669"/>
+  <text x="430" y="548" fill="#FFFFFF" font-size="11.5" font-weight="700" text-anchor="middle">4.0: Xử lý Checkout ACID</text>
+  <text x="430" y="574" fill="#065F46" font-size="12" font-weight="700" text-anchor="middle">Giao dịch thanh toán SqlTransaction</text>
+  <text x="430" y="594" fill="#047857" font-size="10.5" text-anchor="middle">Đồng bộ: Trừ kho, Lưu đơn, Tích điểm</text>
+
+
+  <!-- ================= DATA STORES (TWO HORIZONTAL LINES) ================= -->
+
+  <!-- D1: Products -->
+  <g id="ds-products" transform="translate(750, 110)">
+    <line x1="0" y1="0" x2="280" y2="0" stroke="#0369A1" stroke-width="3"/>
+    <line x1="0" y1="58" x2="280" y2="58" stroke="#0369A1" stroke-width="3"/>
+    <rect x="0" y="2" width="280" height="54" fill="#F0F9FF"/>
+    <text x="35" y="34" fill="#0369A1" font-size="13" font-weight="800">D1</text>
+    <line x1="60" y1="0" x2="60" y2="58" stroke="#BAE6FD" stroke-width="1.5"/>
+    <text x="170" y="27" fill="#0C4A6E" font-size="12" font-weight="700" text-anchor="middle">KHO HÀNG HÓA (Products)</text>
+    <text x="170" y="45" fill="#475569" font-size="10" text-anchor="middle">Barcode, Tên hàng, Đơn giá, Tồn kho</text>
+  </g>
+
+  <!-- D2: Customers -->
+  <g id="ds-customers" transform="translate(750, 250)">
+    <line x1="0" y1="0" x2="280" y2="0" stroke="#7C3AED" stroke-width="3"/>
+    <line x1="0" y1="58" x2="280" y2="58" stroke="#7C3AED" stroke-width="3"/>
+    <rect x="0" y="2" width="280" height="54" fill="#FAF5FF"/>
+    <text x="35" y="34" fill="#7C3AED" font-size="13" font-weight="800">D2</text>
+    <line x1="60" y1="0" x2="60" y2="58" stroke="#DDD6FE" stroke-width="1.5"/>
+    <text x="170" y="27" fill="#4C1D95" font-size="12" font-weight="700" text-anchor="middle">KHO KHÁCH HÀNG (Customers)</text>
+    <text x="170" y="45" fill="#475569" font-size="10" text-anchor="middle">Số điện thoại, Họ tên, Điểm thưởng, Hạng</text>
+  </g>
+
+  <!-- D3: Orders -->
+  <g id="ds-orders" transform="translate(750, 460)">
+    <line x1="0" y1="0" x2="280" y2="0" stroke="#059669" stroke-width="3"/>
+    <line x1="0" y1="58" x2="280" y2="58" stroke="#059669" stroke-width="3"/>
+    <rect x="0" y="2" width="280" height="54" fill="#F0FDF4"/>
+    <text x="35" y="34" fill="#059669" font-size="13" font-weight="800">D3</text>
+    <line x1="60" y1="0" x2="60" y2="58" stroke="#A7F3D0" stroke-width="1.5"/>
+    <text x="170" y="27" fill="#064E3B" font-size="12" font-weight="700" text-anchor="middle">KHO HÓA ĐƠN (Orders)</text>
+    <text x="170" y="45" fill="#475569" font-size="10" text-anchor="middle">OrderId, Ngày bán, Thu ngân, Tổng tiền</text>
+  </g>
+
+  <!-- D4: OrderDetails -->
+  <g id="ds-orderdetails" transform="translate(750, 580)">
+    <line x1="0" y1="0" x2="280" y2="0" stroke="#059669" stroke-width="3"/>
+    <line x1="0" y1="58" x2="280" y2="58" stroke="#059669" stroke-width="3"/>
+    <rect x="0" y="2" width="280" height="54" fill="#F0FDF4"/>
+    <text x="35" y="34" fill="#059669" font-size="13" font-weight="800">D4</text>
+    <line x1="60" y1="0" x2="60" y2="58" stroke="#A7F3D0" stroke-width="1.5"/>
+    <text x="170" y="27" fill="#064E3B" font-size="12" font-weight="700" text-anchor="middle">KHO CHI TIẾT ĐƠN (OrderDetails)</text>
+    <text x="170" y="45" fill="#475569" font-size="10" text-anchor="middle">OrderId, ProductId, Số lượng, Đơn giá</text>
+  </g>
+
+
+  <!-- ================= DATA FLOW ARROWS ================= -->
+
+  <!-- Flow 1: Quét mã vạch Thu ngân -> P1.0 -->
+  <path d="M 200 170 L 320 135" fill="none" stroke="#0284C7" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="250" y="145" fill="#0284C7" font-size="10" font-weight="700" text-anchor="middle">Mã Barcode</text>
+
+  <!-- Flow 2: P1.0 <-> D1 Products -->
+  <line x1="540" y1="130" x2="740" y2="130" stroke="#0284C7" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="640" y="122" fill="#0369A1" font-size="9.5" font-weight="600" text-anchor="middle">Tra cứu mã vạch</text>
+
+  <line x1="740" y1="150" x2="540" y2="150" stroke="#0284C7" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="640" y="165" fill="#0369A1" font-size="9.5" font-weight="600" text-anchor="middle">Thông tin SP &amp; tồn kho</text>
+
+  <!-- Flow 3: P1.0 -> Thu ngân (Giỏ hàng cập nhật) -->
+  <path d="M 320 160 L 200 190" fill="none" stroke="#0284C7" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+  <text x="250" y="195" fill="#0284C7" font-size="10" font-weight="700" text-anchor="middle">Dữ liệu giỏ hàng</text>
+
+  <!-- Flow 4: Thu ngân / Khách -> P2.0 (SĐT) -->
+  <path d="M 200 215 L 320 270" fill="none" stroke="#7C3AED" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="250" y="245" fill="#7C3AED" font-size="10" font-weight="700" text-anchor="middle">Số ĐT khách hàng</text>
+
+  <!-- Flow 5: P2.0 <-> D2 Customers -->
+  <line x1="540" y1="270" x2="740" y2="270" stroke="#7C3AED" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="640" y="262" fill="#5B21B6" font-size="9.5" font-weight="600" text-anchor="middle">Tra cứu SĐT</text>
+
+  <line x1="740" y1="290" x2="540" y2="290" stroke="#7C3AED" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="640" y="305" fill="#5B21B6" font-size="9.5" font-weight="600" text-anchor="middle">Điểm thưởng, Hạng</text>
+
+  <!-- Flow 6: Khách hàng -> P3.0 (Tiền mặt khách đưa) -->
+  <path d="M 200 485 L 320 440" fill="none" stroke="#334155" stroke-width="1.8" marker-end="url(#arrow-dark)"/>
+  <text x="250" y="455" fill="#334155" font-size="10" font-weight="700" text-anchor="middle">Tiền khách đưa</text>
+
+  <!-- Flow 7: P3.0 -> Khách hàng (Tiền thừa) -->
+  <path d="M 320 460 L 200 510" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="250" y="500" fill="#059669" font-size="10" font-weight="700" text-anchor="middle">Tiền thừa trả khách</text>
+
+  <!-- Flow 8: Thu ngân -> P4.0 (Lệnh thanh toán F9) -->
+  <path d="M 125 230 L 125 600 L 320 580" fill="none" stroke="#059669" stroke-width="2.2" marker-end="url(#arrow-green)"/>
+  <text x="210" y="595" fill="#059669" font-size="10.5" font-weight="700" text-anchor="middle">Kích hoạt F9 (Checkout)</text>
+
+  <!-- Flow 9: P4.0 -> D1 (Trừ tồn kho) -->
+  <path d="M 540 550 L 690 550 L 690 150 L 740 150" fill="none" stroke="#0284C7" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="635" y="370" fill="#0284C7" font-size="9.5" font-weight="700" transform="rotate(-90 635 370)">Trừ tồn kho (StockQuantity - Qty)</text>
+
+  <!-- Flow 10: P4.0 -> D2 (Cập nhật điểm) -->
+  <path d="M 540 565 L 710 565 L 710 290 L 740 290" fill="none" stroke="#7C3AED" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <text x="698" y="420" fill="#7C3AED" font-size="9" font-weight="700" transform="rotate(-90 698 420)">Trừ điểm đổi + Cộng điểm mới</text>
+
+  <!-- Flow 11: P4.0 -> D3 (Ghi hóa đơn) -->
+  <path d="M 540 580 L 740 490" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="630" y="525" fill="#059669" font-size="10" font-weight="700" text-anchor="middle">Ghi Orders</text>
+
+  <!-- Flow 12: P4.0 -> D4 (Ghi chi tiết) -->
+  <path d="M 540 600 L 740 605" fill="none" stroke="#059669" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <text x="640" y="618" fill="#059669" font-size="10" font-weight="700" text-anchor="middle">Ghi OrderDetails</text>
+
+  <!-- Flow 13: P4.0 -> Khách hàng (Phiếu hóa đơn) -->
+  <path d="M 320 605 L 125 635 L 125 540" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrow-green)"/>
+  <text x="210" y="630" fill="#059669" font-size="10" font-weight="700" text-anchor="middle">Phiếu hóa đơn in ra</text>
+
+</svg>

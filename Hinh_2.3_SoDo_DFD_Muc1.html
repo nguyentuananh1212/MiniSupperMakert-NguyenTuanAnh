@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hình 2.3: Sơ đồ dòng dữ liệu (DFD mức 1) phân hệ POS</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+            max-width: 1220px;
+            width: 100%;
+        }
+        .instruction {
+            background-color: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: #14532d;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .instruction strong { color: #15803d; }
+        .diagram-wrapper {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+            padding: 10px;
+        }
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .caption {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #334155;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instruction">
+            📌 <strong>HƯỚNG DẪN DÁN VÀO ĐỒ ÁN - HÌNH 2.3:</strong><br>
+            1. Đây là <strong>Sơ đồ dòng dữ liệu DFD mức 1 (Data Flow Diagram)</strong> chuẩn hóa cho quầy thu ngân POS: thể hiện 2 Thực thể ngoài (Thu ngân, Khách hàng), 4 Tiến trình xử lý (Quét Barcode, Đổi điểm, Tính tiền, Checkout ACID) và 4 Kho dữ liệu (D1: Products, D2: Customers, D3: Orders, D4: OrderDetails).<br>
+            2. Bạn dùng phím tắt <strong>Windows + Shift + S</strong> quét chụp trọn khung sơ đồ bên dưới.<br>
+            3. Quay lại file Word tại mục <strong>2.2.2</strong>, xóa khung <code>[Hình 2.3]</code> và bấm <strong>Ctrl + V</strong> dán vào.
+        </div>
+
+        <div class="diagram-wrapper">
+            <img src="Hinh_2.3_SoDo_DFD_Muc1.svg" alt="Sơ đồ DFD mức 1" style="width: 100%; height: auto;" />
+        </div>
+
+        <div class="caption">
+            Hình 2.3: Sơ đồ tuần hoàn dòng chảy dữ liệu (Data Flow Diagram - DFD mức 1) phân hệ bán lẻ POS
+        </div>
+    </div>
+</body>
+</html>

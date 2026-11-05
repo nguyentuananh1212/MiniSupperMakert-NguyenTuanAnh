@@ -56,7 +56,7 @@ namespace MiniSupermarket.WinForms
                     dgvUsers.Rows[e.RowIndex].DataBoundItem is UserDto u &&
                     !u.IsActive)
                 {
-                    e.CellStyle.ForeColor = Color.Gray;
+                    if (e.CellStyle != null) e.CellStyle.ForeColor = Color.Gray;
                 }
             };
         }

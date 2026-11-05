@@ -1,10 +1,10 @@
 -- =========================================================================
 -- HỌ TÊN SINH VIÊN: NGUYỄN TUẤN ANH
 -- MÔ TẢ: TOÀN BỘ SCRIPT TẠO STORED PROCEDURE BUỔI 5 (TIẾT 3: CỐT LÕI + MỞ RỘNG)
--- CSDL: MiniSupermarketDb (hoặc CSDL chỉ định)
+-- CSDL: NguyenTuanAnh_MiniSupperMakert
 -- =========================================================================
 
-USE MiniSupermarketDb;
+USE NguyenTuanAnh_MiniSupperMakert;
 GO
 
 -- =========================================================================
@@ -23,8 +23,8 @@ BEGIN
     SELECT 
         CashierUsername,
         COUNT(OrderId) AS TotalOrders,
-        SUM(FinalAmount) AS TotalRevenue,
-        SUM(RewardPoints) AS TotalPointsAwarded
+        ISNULL(SUM(TotalAmount), 0) AS TotalRevenue,
+        0 AS TotalPointsAwarded
     FROM Orders
     GROUP BY CashierUsername
     ORDER BY TotalRevenue DESC;
@@ -49,10 +49,10 @@ BEGIN
     SELECT 
         CashierUsername,
         COUNT(OrderId) AS TotalOrders,
-        SUM(FinalAmount) AS TotalRevenue,
-        SUM(RewardPoints) AS TotalPointsAwarded
+        ISNULL(SUM(TotalAmount), 0) AS TotalRevenue,
+        0 AS TotalPointsAwarded
     FROM Orders
-    WHERE CreatedDate >= @FromDate AND CreatedDate <= @ToDate
+    WHERE OrderDate >= @FromDate AND OrderDate <= @ToDate
     GROUP BY CashierUsername
     ORDER BY TotalRevenue DESC;
 END
@@ -75,8 +75,8 @@ BEGIN
         p.ProductId,
         p.Barcode,
         p.ProductName,
-        SUM(d.Quantity) AS TotalSoldQuantity,
-        SUM(d.LineTotal) AS TotalRevenue
+        ISNULL(SUM(d.Quantity), 0) AS TotalSoldQuantity,
+        ISNULL(SUM(d.Quantity * d.UnitPrice), 0) AS TotalRevenue
     FROM OrderDetails d
     INNER JOIN Products p ON d.ProductId = p.ProductId
     GROUP BY p.ProductId, p.Barcode, p.ProductName
@@ -85,8 +85,27 @@ END
 GO
 
 -- =========================================================================
--- CÁC CÂU LỆNH KIỂM TRA THỬ NGHIỆM TRÊN SSMS:
+-- 4. TIÊU CHÍ 45: sp_GetDailyRevenueGroupedByDate
+-- Thống kê doanh thu theo từng ngày gom nhóm GROUP BY CAST(OrderDate AS DATE)
 -- =========================================================================
--- EXEC sp_GetRevenueByCashier;
--- EXEC sp_GetRevenueByDateRange '2026-08-01 00:00:00', '2026-08-31 23:59:59';
--- EXEC sp_GetTop5SellingProducts;
+IF OBJECT_ID('sp_GetDailyRevenueGroupedByDate', 'P') IS NOT NULL
+    DROP PROCEDURE sp_GetDailyRevenueGroupedByDate;
+GO
+
+CREATE PROCEDURE sp_GetDailyRevenueGroupedByDate
+    @FromDate DATETIME,
+    @ToDate DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        CAST(OrderDate AS DATE) AS [Date],
+        COUNT(OrderId) AS TotalOrders,
+        ISNULL(SUM(TotalAmount), 0) AS TotalRevenue
+    FROM Orders
+    WHERE OrderDate >= @FromDate AND OrderDate <= @ToDate
+    GROUP BY CAST(OrderDate AS DATE)
+    ORDER BY [Date] ASC;
+END
+GO

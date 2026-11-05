@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hình 1.1: Mô hình kiến trúc thực thi mã nguồn .NET Core</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 1150px;
+            width: 100%;
+        }
+        .instruction {
+            background-color: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            color: #1e3a8a;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .instruction strong {
+            color: #1d4ed8;
+        }
+        .diagram-wrapper {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+            padding: 10px;
+        }
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .caption {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #334155;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instruction">
+            📌 <strong>HƯỚNG DẪN DÁN VÀO ĐỒ ÁN:</strong><br>
+            1. Bạn dùng phím tắt <strong>Windows + Shift + S</strong> trên bàn phím để chụp khung sơ đồ bên dưới.<br>
+            2. Mở file Word đồ án của bạn, đặt con trỏ tại ô <strong>[Hình 1.1]</strong> và bấm <strong>Ctrl + V</strong> để dán ảnh vào.<br>
+            3. <em>Hoặc:</em> Trong Word, chọn <strong>Insert ➔ Pictures ➔ This Device</strong> rồi chọn file <code>Hinh_1.1_KienTruc_ThucThi_NETCore.svg</code> trong thư mục dự án để chèn trực tiếp dạng vector siêu nét!
+        </div>
+
+        <div class="diagram-wrapper">
+            <img src="Hinh_1.1_KienTruc_ThucThi_NETCore.svg" alt="Mô hình kiến trúc .NET Core" style="width: 100%; height: auto;" />
+        </div>
+
+        <div class="caption">
+            Hình 1.1: Mô hình kiến trúc thực thi mã nguồn .NET Core (CIL, CLR và JIT Compiler)
+        </div>
+    </div>
+</body>
+</html>

@@ -1,4 +1,8 @@
-﻿using System;
+/*
+ * Họ tên sinh viên: Nguyễn Tuấn Anh
+ * Mô tả: FormMainShell - Form khung chính chứa sidebar điều hướng và panel nội dung
+ */
+using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,10 +12,13 @@ namespace MiniSupermarket.WinForms
     public partial class FormMainShell : Form
     {
         private static readonly Color SidebarColor = Color.FromArgb(24, 30, 48);
-        private static readonly Color ActiveColor = Color.FromArgb(41, 100, 180);
+        private static readonly Color ActiveColor  = Color.FromArgb(41, 100, 180);
 
         // Form con đang hiển thị trong panelMainContent
         private Form? _activeForm = null;
+
+        // Nút quản lý đơn hàng (tạo động, chỉ cho Admin)
+        private Button? btnOrderManagement;
 
         public FormMainShell()
         {
@@ -21,16 +28,58 @@ namespace MiniSupermarket.WinForms
         private void FormMainShell_Load(object sender, EventArgs e)
         {
             // 1. Thông tin phiên đăng nhập
-            lblUserInfo.Text =
-                $"Nhân viên: {(string.IsNullOrWhiteSpace(SessionManager.CurrentFullName) ? SessionManager.CurrentUsername : $"{SessionManager.CurrentFullName} ({SessionManager.CurrentUsername})")} | " +
-                $"Vai trò: [{SessionManager.CurrentRole}]";
+            string fullDisplay = string.IsNullOrWhiteSpace(SessionManager.CurrentFullName)
+                ? SessionManager.CurrentUsername
+                : $"{SessionManager.CurrentFullName} ({SessionManager.CurrentUsername})";
+
+            lblUserInfo.Text = $"Nhân viên: {fullDisplay} | Vai trò: [{SessionManager.CurrentRole}]";
 
             // 2. Phân quyền giao diện (role không hợp lệ -> đóng form)
             if (!ApplyRolePermissions(SessionManager.CurrentRole))
                 return;
 
-            // 3. Mở màn hình mặc định theo vai trò
+            // 3. Thêm nút Quản lý đơn hàng vào sidebar (Admin và Cashier đều thấy)
+            string roleUpper = (SessionManager.CurrentRole ?? string.Empty).Trim().ToUpperInvariant();
+            if (roleUpper == "ADMIN" || roleUpper == "CASHIER")
+            {
+                EnsureOrderManagementButton();
+            }
+
+            // 4. Mở màn hình mặc định theo vai trò
             OpenDefaultScreenByRole(SessionManager.CurrentRole);
+        }
+
+        // =====================================================
+        // TẠO NÚT QUẢN LÝ ĐƠN HÀNG ĐỘNG
+        // =====================================================
+
+        private void EnsureOrderManagementButton()
+        {
+            if (btnOrderManagement != null) return;
+
+            btnOrderManagement = new Button
+            {
+                Text      = "🛒  Quản lý đơn hàng",
+                Dock      = DockStyle.Top,
+                Height    = 46,
+                BackColor = SidebarColor,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font      = new Font("Segoe UI", 10f, FontStyle.Regular),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding   = new Padding(16, 0, 0, 0)
+            };
+            btnOrderManagement.FlatAppearance.BorderSize = 0;
+            btnOrderManagement.Click += (s, e) =>
+                NavigateOrder(btnOrderManagement, () => new FormOrderManagement(), "QUẢN LÝ ĐƠN HÀNG");
+
+            panelSidebar.Controls.Add(btnOrderManagement);
+        }
+
+        // Navigate dành riêng cho nút động (không qua CanAccess tĩnh)
+        private void NavigateOrder(Button btn, Func<Form> createForm, string title)
+        {
+            OpenChildForm(createForm(), title, btn);
         }
 
         // =====================================================
@@ -55,12 +104,12 @@ namespace MiniSupermarket.WinForms
                 _activeForm = childForm;
 
                 // Nhúng form con: không viền, không cửa sổ riêng, TRÀN KÍN vùng nội dung
-                childForm.TopLevel = false;
+                childForm.TopLevel       = false;
                 childForm.FormBorderStyle = FormBorderStyle.None;
-                childForm.ControlBox = false;
-                childForm.StartPosition = FormStartPosition.Manual;
-                childForm.Margin = Padding.Empty;
-                childForm.Dock = DockStyle.Fill;
+                childForm.ControlBox     = false;
+                childForm.StartPosition  = FormStartPosition.Manual;
+                childForm.Margin         = Padding.Empty;
+                childForm.Dock           = DockStyle.Fill;
 
                 panelMainContent.Controls.Add(childForm);
                 panelMainContent.Tag = childForm;
@@ -85,7 +134,6 @@ namespace MiniSupermarket.WinForms
                 if (ctrl is Button btn)
                     btn.BackColor = SidebarColor;
             }
-
             activeButton.BackColor = ActiveColor;
         }
 
@@ -105,7 +153,8 @@ namespace MiniSupermarket.WinForms
                     return true;
 
                 case "CASHIER":
-                    return btn == btnPOS || btn == btnCustomer;
+                    // Thu ngân thấy: POS, Danh mục, Sản phẩm và Quản lý đơn hàng (nút động)
+                    return btn == btnPOS || btn == btnCategory || btn == btnProduct;
 
                 case "WAREHOUSE":
                     return btn == btnCategory || btn == btnProduct;
@@ -216,10 +265,10 @@ namespace MiniSupermarket.WinForms
                 return;
 
             // Xóa phiên làm việc
-            SessionManager.JwtToken = string.Empty;
-            SessionManager.CurrentUsername = string.Empty;
-            SessionManager.CurrentFullName = string.Empty;
-            SessionManager.CurrentRole = string.Empty;
+            SessionManager.JwtToken        = string.Empty;
+            SessionManager.CurrentUsername  = string.Empty;
+            SessionManager.CurrentFullName  = string.Empty;
+            SessionManager.CurrentRole      = string.Empty;
 
             Hide();
             new FormLogin().ShowDialog();
@@ -238,4 +287,4 @@ namespace MiniSupermarket.WinForms
             base.OnFormClosed(e);
         }
     }
-}
+}

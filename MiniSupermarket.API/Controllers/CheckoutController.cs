@@ -1,10 +1,11 @@
-/*
+﻿/*
  * Họ tên sinh viên: Nguyễn Tuấn Anh
  * Mô tả: API Thanh toán POS đa bảng và Hủy đơn hàng được bảo vệ bởi SqlTransaction (ACID)
  * Tiết 5: Đầy đủ ProcessCheckout và CancelOrder
  */
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using MiniSupermarket.API.DTOs;
 using MiniSupermarket.API.Models;
 
 namespace MiniSupermarket.API.Controllers
@@ -24,6 +25,7 @@ namespace MiniSupermarket.API.Controllers
         // =========================================================================
         // POST: api/checkout
         // Chức năng: Thanh toán hóa đơn, trừ tồn kho và tích điểm trong 1 Transaction
+        // Tiêu chí 47: Đổi điểm thưởng trừ tiền trong cùng một SqlTransaction
         // =========================================================================
         [HttpPost]
         public IActionResult ProcessCheckout([FromBody] CheckoutRequestDto request)
@@ -50,9 +52,64 @@ namespace MiniSupermarket.API.Controllers
 
                 try
                 {
-                    // Tính toán tổng tiền, tổng số lượng và điểm thưởng tích lũy
-                    decimal finalAmount = request.Items.Sum(i => i.Quantity * i.UnitPrice);
+                    // Tính toán tổng tiền gốc và tổng số lượng
+                    decimal grossAmount = request.Items.Sum(i => i.Quantity * i.UnitPrice);
                     int totalItems = request.Items.Sum(i => i.Quantity);
+                    decimal discountAmount = 0m;
+                    int pointsRedeemed = 0;
+
+                    // =====================================================================
+                    // TIÊU CHÍ 47: ĐỔI ĐIỂM THƯỞNG TRỪ TIỀN TRONG CÙNG SQLTRANSACTION
+                    // Nghiệp vụ: Dùng 50 điểm trừ 50.000 đ vào hóa đơn (1 điểm = 1.000 VNĐ)
+                    // =====================================================================
+                    if (request.PointsToRedeem > 0)
+                    {
+                        string checkPointsSql = "SELECT RewardPoints FROM Customers WHERE CustomerId = @CustomerId";
+                        int currentPoints = 0;
+                        using (SqlCommand cmdPts = new SqlCommand(checkPointsSql, connection, transaction))
+                        {
+                            cmdPts.Parameters.AddWithValue("@CustomerId", request.CustomerId);
+                            object? ptsResult = cmdPts.ExecuteScalar();
+                            if (ptsResult == null || ptsResult == DBNull.Value)
+                            {
+                                throw new InvalidOperationException($"Không tìm thấy khách hàng ID = {request.CustomerId} để đổi điểm!");
+                            }
+                            currentPoints = Convert.ToInt32(ptsResult);
+                        }
+
+                        if (currentPoints < request.PointsToRedeem)
+                        {
+                            throw new InvalidOperationException($"Khách hàng chỉ có {currentPoints} điểm, không đủ để đổi {request.PointsToRedeem} điểm!");
+                        }
+
+                        decimal maxDiscount = grossAmount;
+                        decimal requestedDiscount = request.PointsToRedeem * 1000m;
+                        if (requestedDiscount > maxDiscount)
+                        {
+                            requestedDiscount = maxDiscount;
+                            pointsRedeemed = (int)(requestedDiscount / 1000m);
+                        }
+                        else
+                        {
+                            pointsRedeemed = request.PointsToRedeem;
+                        }
+
+                        discountAmount = pointsRedeemed * 1000m;
+
+                        // Cập nhật trừ điểm trong bảng Customers trong cùng SqlTransaction
+                        string deductPointsSql = @"
+                            UPDATE Customers 
+                            SET RewardPoints = RewardPoints - @Redeemed 
+                            WHERE CustomerId = @CustomerId";
+                        using (SqlCommand cmdDeduct = new SqlCommand(deductPointsSql, connection, transaction))
+                        {
+                            cmdDeduct.Parameters.AddWithValue("@Redeemed", pointsRedeemed);
+                            cmdDeduct.Parameters.AddWithValue("@CustomerId", request.CustomerId);
+                            cmdDeduct.ExecuteNonQuery();
+                        }
+                    }
+
+                    decimal finalAmount = Math.Max(0, grossAmount - discountAmount);
                     // Quy tắc tích điểm siêu thị: Cứ mỗi 10.000đ mua hàng được tặng 1 điểm thưởng
                     int rewardPoints = (int)(finalAmount / 10000);
 
@@ -145,7 +202,7 @@ namespace MiniSupermarket.API.Controllers
                     }
 
                     // =====================================================================
-                    // BƯỚC 4: CỘNG ĐIỂM TÍCH LŨY CHO KHÁCH HÀNG TRONG BẢNG Customers
+                    // BƯỚC 4: CỘNG ĐIỂM TÍCH LŨY MỚI CHO KHÁCH HÀNG TRONG BẢNG Customers
                     // =====================================================================
                     if (rewardPoints > 0)
                     {
@@ -175,6 +232,9 @@ namespace MiniSupermarket.API.Controllers
                         orderId = orderId,
                         orderCode = orderCode,
                         totalItems = totalItems,
+                        grossAmount = grossAmount,
+                        discountAmount = discountAmount,
+                        pointsRedeemed = pointsRedeemed,
                         finalAmount = finalAmount,
                         rewardPointsAdded = rewardPoints
                     });

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hình 1.3: Cấu trúc gói tin JSON Web Token (jwt.io)</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0b0c10;
+            color: #fff;
+            margin: 0;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .guide-box {
+            background-color: #1f2833;
+            border-left: 5px solid #00b4d8;
+            padding: 15px 25px;
+            border-radius: 8px;
+            max-width: 1100px;
+            width: 100%;
+            margin-bottom: 25px;
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: #c5c6c7;
+        }
+        .guide-box strong { color: #66fcf1; }
+        .jwt-card {
+            background: #11141a;
+            border: 1px solid #232936;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+            max-width: 1100px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .jwt-top {
+            background: #191e28;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #283040;
+        }
+        .jwt-logo {
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .jwt-badge {
+            background: #00b4d8;
+            color: #000;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        .jwt-body {
+            display: flex;
+            padding: 25px;
+            gap: 25px;
+        }
+        .col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .panel {
+            background: #161b24;
+            border: 1px solid #262e3d;
+            border-radius: 8px;
+            padding: 18px;
+            font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+        .panel-header {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .red-text { color: #fb7185; }
+        .purple-text { color: #c084fc; }
+        .blue-text { color: #38bdf8; }
+        .green-text { color: #4ade80; }
+        .encoded-box {
+            word-break: break-all;
+            height: 380px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .verified-tag {
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        .caption {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #94a3b8;
+            font-size: 14.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="guide-box">
+        📌 <strong>HƯỚNG DẪN CHỤP ẢNH HÌNH 1.3:</strong><br>
+        1. Đây là giao diện chuẩn của công cụ giải mã JWT (jwt.io) với đúng <strong>Token thực tế của hệ thống Family Fresh</strong>.<br>
+        2. Bạn chỉ cần nhấn phím <strong>Windows + Shift + S</strong> rồi quét chuột chụp trọn vẹn khung màu đen <strong>JWT DEBUGGER</strong> bên dưới.<br>
+        3. Mở file Word, xóa khung chữ <code>[Hình 1.3]</code> và nhấn <strong>Ctrl + V</strong> dán vào.
+    </div>
+
+    <div class="jwt-card">
+        <div class="jwt-top">
+            <div class="jwt-logo">
+                <span style="color:#00b4d8;">JSON Web Tokens</span> (jwt.io Debugger)
+                <span class="jwt-badge">ALGORITHM: HS256</span>
+            </div>
+            <div style="font-size: 12px; color: #94a3b8;">
+                Backend: MiniSupermarket.API (AuthController.cs)
+            </div>
+        </div>
+
+        <div class="jwt-body">
+            <!-- Left: Encoded Token -->
+            <div class="col">
+                <div class="panel-header" style="color: #94a3b8;">
+                    <span>ENCODED TOKEN</span>
+                    <span style="font-size: 11px; color: #64748b;">(Gửi kèm trong Header Authorization: Bearer ...)</span>
+                </div>
+                <div class="panel encoded-box">
+<span class="red-text">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</span>.<span class="purple-text">eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiY2FzaGllcjAxIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQ2FzaGllciIsImZ1bGxOYW1lIjoiTMOqIFRodSBOZ8OibiIsImlzcyI6Ik1pbmlTdXBlcm1hcmtldC5BUEkiLCJleHAiOjE3OTM2NTA1MDl9</span>.<span class="blue-text">ajj11-pkA-3TQJdqREJWDm6NGU6RLc_hCnNoqp8g_RE</span>
+                </div>
+            </div>
+
+            <!-- Right: Decoded Payload -->
+            <div class="col">
+                <div class="panel-header red-text">
+                    <span>HEADER: ALGORITHM &amp; TOKEN TYPE</span>
+                </div>
+                <div class="panel">
+{
+  <span class="red-text">"alg"</span>: <span class="green-text">"HS256"</span>,
+  <span class="red-text">"typ"</span>: <span class="green-text">"JWT"</span>
+}
+                </div>
+
+                <div class="panel-header purple-text" style="margin-top: 5px;">
+                    <span>PAYLOAD: DATA CLAIMS (Xác thực danh tính)</span>
+                </div>
+                <div class="panel">
+{
+  <span class="purple-text">"name"</span>: <span class="green-text">"cashier01"</span>,
+  <span class="purple-text">"role"</span>: <span class="green-text">"Cashier"</span>,
+  <span class="purple-text">"fullName"</span>: <span class="green-text">"Lê Thu Ngân"</span>,
+  <span class="purple-text">"iss"</span>: <span class="green-text">"MiniSupermarket.API"</span>,
+  <span class="purple-text">"exp"</span>: <span class="blue-text">1793650509</span>
+}
+                </div>
+
+                <div class="panel-header blue-text" style="margin-top: 5px;">
+                    <span>VERIFY SIGNATURE (Ký đối xứng HMAC-SHA256)</span>
+                </div>
+                <div class="panel" style="padding: 12px 18px;">
+HMACSHA256(
+  base64UrlEncode(header) + "." + base64UrlEncode(payload),
+  <span class="green-text">"SupermarketSecretKeyDoAnMonHoc2026SecureString!!"</span>
+)
+                    <div>
+                        <span class="verified-tag">✔ Signature Verified</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="caption">
+        Hình 1.3: Cấu trúc gói tin JSON Web Token gồm 3 thành phần (Header, Payload, Signature)
+    </div>
+
+</body>
+</html>

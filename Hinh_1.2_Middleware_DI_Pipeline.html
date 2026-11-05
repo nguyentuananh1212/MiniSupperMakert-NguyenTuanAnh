@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hình 1.2: Sơ đồ kiến trúc Bộ chứa Phụ thuộc (DI Container) và Middleware Pipeline</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+        .instruction {
+            background-color: #f5f3ff;
+            border-left: 4px solid #7c3aed;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            color: #4c1d95;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .instruction strong {
+            color: #6d28d9;
+        }
+        .diagram-wrapper {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+            padding: 10px;
+        }
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .caption {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #334155;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instruction">
+            📌 <strong>HƯỚNG DẪN DÁN VÀO ĐỒ ÁN - HÌNH 1.2:</strong><br>
+            1. Bạn dùng phím tắt <strong>Windows + Shift + S</strong> trên bàn phím để quét chụp khung sơ đồ bên dưới.<br>
+            2. Mở file Word đồ án của bạn, đến ô <strong>[Hình 1.2]</strong>, bôi đen xóa khung chữ hướng dẫn đi và bấm <strong>Ctrl + V</strong> để dán ảnh vào.<br>
+            3. Sơ đồ này thể hiện chính xác 100% các dòng code Middleware trong <code>Program.cs</code> và cơ chế tiêm DI vào <code>ReportsController</code> của bạn!
+        </div>
+
+        <div class="diagram-wrapper">
+            <img src="Hinh_1.2_Middleware_DI_Pipeline.svg" alt="Sơ đồ Middleware Pipeline & DI Container" style="width: 100%; height: auto;" />
+        </div>
+
+        <div class="caption">
+            Hình 1.2: Sơ đồ kiến trúc Bộ chứa Phụ thuộc (DI Container) và Middleware Pipeline trong ASP.NET Core
+        </div>
+    </div>
+</body>
+</html>

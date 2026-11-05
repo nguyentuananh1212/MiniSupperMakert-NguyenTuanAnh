@@ -30,6 +30,9 @@ namespace MiniSupermarket.API.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalAmount { get; set; }
 
+        // Order status
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
+
         [JsonIgnore]
         public virtual ICollection<OrderDetail> Details { get; set; } = new List<OrderDetail>();
     }

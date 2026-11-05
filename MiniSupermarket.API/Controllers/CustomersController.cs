@@ -40,6 +40,55 @@ namespace MiniSupermarket.API.Controllers
             return "Chuẩn";
         }
 
+        // =====================================================
+        // GET api/customers/paged?keyword=...&pageNumber=1&pageSize=5
+        // (Buổi 6: Bài tập 6.1 - Phân trang khách hàng sắp xếp RewardPoints giảm dần)
+        // =====================================================
+        [HttpGet("paged")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPagedCustomers(
+            [FromQuery] string? keyword,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 5)
+        {
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1 || pageSize > 50) pageSize = 5;
+
+            var query = _db.Customers
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                string search = keyword.Trim().ToLower();
+                query = query.Where(c => c.CustomerName.ToLower().Contains(search)
+                                      || c.PhoneNumber.Contains(search));
+            }
+
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+            if (totalPages == 0) totalPages = 1;
+
+            var items = await query
+                .OrderByDescending(c => c.RewardPoints)
+                .ThenBy(c => c.CustomerId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var response = new PagedResult<Customer>
+            {
+                CurrentPage = pageNumber,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages,
+                Items = items
+            };
+
+            return Ok(response);
+        }
+
+        // =====================================================
         // GET api/customers
         [HttpGet]
         public async Task<IActionResult> GetAll()

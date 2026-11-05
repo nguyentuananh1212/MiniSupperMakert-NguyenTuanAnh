@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hình 2.2: Sơ đồ kiến trúc hệ thống phân tán 3 lớp</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 25px;
+            max-width: 1240px;
+            width: 100%;
+        }
+        .instruction {
+            background-color: #f5f3ff;
+            border-left: 4px solid #7c3aed;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: #4c1d95;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .instruction strong { color: #6d28d9; }
+        .diagram-wrapper {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+            padding: 10px;
+        }
+        svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        .caption {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #334155;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="instruction">
+            📌 <strong>HƯỚNG DẪN DÁN VÀO ĐỒ ÁN - HÌNH 2.2:</strong><br>
+            1. Đây là <strong>Sơ đồ kiến trúc phân tán 3 lớp (3-Tier Architecture)</strong> chuẩn mực: <strong>WinForms POS Client ➔ ASP.NET Core 8 Web API ➔ SQL Server</strong>.<br>
+            2. Bạn dùng phím tắt <strong>Windows + Shift + S</strong> quét chụp trọn khung sơ đồ bên dưới.<br>
+            3. Quay lại file Word tại mục <strong>2.2.1</strong>, xóa khung <code>[Hình 2.2]</code> và bấm <strong>Ctrl + V</strong> dán vào.
+        </div>
+
+        <div class="diagram-wrapper">
+            <img src="Hinh_2.2_KienTruc_3Lop.svg" alt="Sơ đồ kiến trúc 3 lớp" style="width: 100%; height: auto;" />
+        </div>
+
+        <div class="caption">
+            Hình 2.2: Sơ đồ kiến trúc hệ thống phân tán 3 lớp: WinForms POS Client - Web API - SQL Server
+        </div>
+    </div>
+</body>
+</html>

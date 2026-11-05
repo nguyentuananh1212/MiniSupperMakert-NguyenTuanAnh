@@ -2,7 +2,7 @@
  * Họ tên sinh viên: Nguyễn Tuấn Anh
  * Mô tả: Các lớp DTO phục vụ nghiệp vụ thanh toán giỏ hàng POS
  */
-namespace MiniSupermarket.API.Models
+namespace MiniSupermarket.API.DTOs
 {
     // DTO biểu diễn từng dòng sản phẩm trong giỏ hàng
     public class CartItemCheckoutDto
@@ -20,6 +20,9 @@ namespace MiniSupermarket.API.Models
 
         // Mã định danh khách hàng (nếu là khách vãng lai, truyền CustomerId = 15 hoặc ID khách lẻ)
         public int CustomerId { get; set; }
+
+        // Tiêu chí 47: Điểm thưởng đổi trừ tiền (1 điểm = 1.000đ)
+        public int PointsToRedeem { get; set; } = 0;
 
         // Danh sách các món hàng cần thanh toán
         public List<CartItemCheckoutDto> Items { get; set; } = new();

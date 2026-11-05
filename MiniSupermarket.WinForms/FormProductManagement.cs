@@ -1,34 +1,49 @@
-﻿using System;
+﻿/*
+ * Họ tên sinh viên: Nguyen Tuan Anh
+ * Mô tả: Code-behind xử lý hiển thị danh sách phân trang, tìm kiếm và CRUD sản phẩm (Buổi 6)
+ */
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MiniSupermarket.WinForms.Services;
 
 namespace MiniSupermarket.WinForms
 {
+    // Lớp nhận dữ liệu DTO từ API về Client (khớp với Backend Buổi 6)
+    public class ProductItemViewDto
+    {
+        public int ProductId { get; set; }
+        public string Barcode { get; set; } = string.Empty;
+        public string ProductName { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public int StockQuantity { get; set; }
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+    }
+
+    public class CategoryComboDto
+    {
+        public int CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
+    }
+
+    public class PagedViewResult<T>
+    {
+        public int CurrentPage { get; set; }
+        public int PageSize { get; set; }
+        public int TotalItems { get; set; }
+        public int TotalPages { get; set; }
+        public List<T> Items { get; set; } = new();
+    }
+
     public partial class FormProductManagement : Form
     {
-        // DTO lồng bên trong form để không trùng với ProductDto/CategoryDto đã có ở nơi khác
-        public class ProductRow
-        {
-            public int ProductId { get; set; }
-            public string Barcode { get; set; } = string.Empty;
-            public string ProductName { get; set; } = string.Empty;
-            public decimal Price { get; set; }
-            public int StockQuantity { get; set; }
-            public int CategoryId { get; set; }
-            public string CategoryName { get; set; } = string.Empty;
-        }
-
-        public class CategoryItem
-        {
-            public int CategoryId { get; set; }
-            public string CategoryName { get; set; } = string.Empty;
-        }
-
-        private List<ProductRow> _allProducts = new();
+        private int _currentPage = 1;
+        private readonly int _pageSize = 5;
+        private int _totalPages = 1;
 
         public FormProductManagement()
         {
@@ -69,11 +84,14 @@ namespace MiniSupermarket.WinForms
                 HeaderText = "Tồn kho",
                 Width = 80,
                 DefaultCellStyle = new DataGridViewCellStyle
-                { Alignment = DataGridViewContentAlignment.MiddleRight }
+                { Format = "N0", Alignment = DataGridViewContentAlignment.MiddleRight }
             });
 
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn
-            { DataPropertyName = "CategoryName", HeaderText = "Nhóm hàng", Width = 150 });
+            { DataPropertyName = "CategoryName", HeaderText = "Nhóm hàng", Width = 160 });
+
+            // Tiêu chí 43: Bắt sự kiện CellFormatting của DataGridView trong WinForms
+            dgvProducts.CellFormatting += dgvProducts_CellFormatting;
         }
 
         // =====================================================
@@ -82,115 +100,150 @@ namespace MiniSupermarket.WinForms
 
         private async void FormProductManagement_Load(object sender, EventArgs e)
         {
-            await LoadCategoriesAsync();
-            await LoadProductsAsync();
+            await LoadCategoriesComboAsync(); // Nạp nhóm hàng vào ComboBox
+            await LoadProductsPagedAsync();   // Nạp bảng sản phẩm phân trang
         }
 
-        private async Task LoadCategoriesAsync()
+        // 1. Tải danh sách nhóm hàng lên ComboBox (cboCategory và cboFilterCategory)
+        private async Task LoadCategoriesComboAsync()
         {
             try
             {
                 var categories = await ApiClientService.Client
-                    .GetFromJsonAsync<List<CategoryItem>>("categories") ?? new List<CategoryItem>();
+                    .GetFromJsonAsync<List<CategoryComboDto>>("categories") ?? new List<CategoryComboDto>();
 
-                // Combo nhập liệu
-                cboCategory.DataSource = new List<CategoryItem>(categories);
+                // ComboBox chọn nhóm hàng khi Thêm / Sửa
+                cboCategory.DataSource = new List<CategoryComboDto>(categories);
                 cboCategory.DisplayMember = "CategoryName";
                 cboCategory.ValueMember = "CategoryId";
 
-                // Combo lọc (có thêm mục "Tất cả")
-                var filterList = new List<CategoryItem>
+                // ComboBox lọc nhóm hàng (Bài tập 6.2)
+                var filterList = new List<CategoryComboDto>
                 {
-                    new CategoryItem { CategoryId = 0, CategoryName = "-- Tất cả nhóm hàng --" }
+                    new CategoryComboDto { CategoryId = 0, CategoryName = "-- Tất cả nhóm hàng --" }
                 };
                 filterList.AddRange(categories);
-
                 cboFilterCategory.DataSource = filterList;
                 cboFilterCategory.DisplayMember = "CategoryName";
                 cboFilterCategory.ValueMember = "CategoryId";
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi nạp danh mục: " + ex.Message, "Lỗi",
+                MessageBox.Show("Lỗi tải danh mục: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private async Task LoadProductsAsync()
+        // 2. Gọi API phân trang và hiển thị dữ liệu lên DataGridView
+        private async Task LoadProductsPagedAsync()
         {
             try
             {
-                _allProducts = await ApiClientService.Client
-                    .GetFromJsonAsync<List<ProductRow>>("products") ?? new List<ProductRow>();
+                string search = txtSearchBarcode.Text.Trim();
+                int categoryId = (cboFilterCategory.SelectedItem as CategoryComboDto)?.CategoryId ?? 0;
 
-                ApplyFilter();
+                string url = $"products/paged?keyword={Uri.EscapeDataString(search)}&pageNumber={_currentPage}&pageSize={_pageSize}";
+                if (categoryId > 0)
+                {
+                    url += $"&categoryId={categoryId}";
+                }
+
+                var result = await ApiClientService.Client.GetFromJsonAsync<PagedViewResult<ProductItemViewDto>>(url);
+                if (result != null)
+                {
+                    _currentPage = result.CurrentPage;
+                    _totalPages = result.TotalPages == 0 ? 1 : result.TotalPages;
+
+                    // Hiển thị dữ liệu lên bảng
+                    dgvProducts.DataSource = result.Items;
+
+                    // Cập nhật nhãn phân trang
+                    lblPaging.Text = $"Trang {_currentPage} / {_totalPages} (Tổng: {result.TotalItems} SP)";
+
+                    // Tiêu chí 43: Huy hiệu & Cảnh báo Hàng sắp hết kho trên thanh trạng thái
+                    int lowStockOnPage = result.Items.Count(p => p.StockQuantity <= 10);
+                    lblLowStockBadge.Text = lowStockOnPage > 0
+                        ? $"⚠️ Cảnh báo: Có {lowStockOnPage} SP sắp hết kho (tồn ≤ 10)!"
+                        : "✅ Tồn kho trang này an toàn";
+                    lblLowStockBadge.ForeColor = lowStockOnPage > 0 ? Color.FromArgb(200, 30, 30) : Color.FromArgb(46, 160, 67);
+
+                    // Bật/tắt nút điều hướng
+                    btnPrev.Enabled = _currentPage > 1;
+                    btnNext.Enabled = _currentPage < _totalPages;
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi nạp sản phẩm: " + ex.Message, "Lỗi",
+                MessageBox.Show("Lỗi lấy dữ liệu sản phẩm: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // =====================================================
-        // TÌM KIẾM / LỌC (xử lý phía client trên danh sách đã tải)
-        // =====================================================
-
-        private void ApplyFilter()
+        // 3. Sự kiện chuyển trang
+        private async void btnPrev_Click(object sender, EventArgs e)
         {
-            string keyword = txtSearchBarcode.Text.Trim();
-            int categoryId = (cboFilterCategory.SelectedItem as CategoryItem)?.CategoryId ?? 0;
-
-            IEnumerable<ProductRow> query = _allProducts;
-
-            if (keyword.Length > 0)
+            if (_currentPage > 1)
             {
-                query = query.Where(p =>
-                    p.Barcode.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                    p.ProductName.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+                _currentPage--;
+                await LoadProductsPagedAsync();
             }
-
-            if (categoryId > 0)
-            {
-                query = query.Where(p => p.CategoryId == categoryId);
-            }
-
-            dgvProducts.DataSource = query.ToList();
         }
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnNext_Click(object sender, EventArgs e)
         {
-            ApplyFilter();
+            if (_currentPage < _totalPages)
+            {
+                _currentPage++;
+                await LoadProductsPagedAsync();
+            }
         }
 
-        private void txtSearchBarcode_KeyDown(object sender, KeyEventArgs e)
+        // 4. Sự kiện tìm kiếm & lọc
+        private async void btnSearch_Click(object sender, EventArgs e)
+        {
+            _currentPage = 1; // Khi tìm kiếm từ khóa mới, luôn quay về trang 1
+            await LoadProductsPagedAsync();
+        }
+
+        private async void txtSearchBarcode_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
                 e.SuppressKeyPress = true;
-                ApplyFilter();
+                _currentPage = 1;
+                await LoadProductsPagedAsync();
             }
         }
 
+        private async void cboFilterCategory_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (cboFilterCategory.SelectedIndex < 0) return;
+            _currentPage = 1;
+            await LoadProductsPagedAsync();
+        }
+
         // =====================================================
-        // CHỌN DÒNG -> ĐỔ LÊN FORM CHI TIẾT
+        // CHỌN DÒNG TRÊN LƯỚI -> ĐỔ LÊN FORM NHẬP LIỆU
         // =====================================================
 
         private void dgvProducts_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
-            if (dgvProducts.Rows[e.RowIndex].DataBoundItem is not ProductRow p) return;
+            if (dgvProducts.Rows[e.RowIndex].DataBoundItem is not ProductItemViewDto p) return;
 
             txtId.Text = p.ProductId.ToString();
             txtBarcode.Text = p.Barcode;
             txtProductName.Text = p.ProductName;
             nudPrice.Value = Math.Min(p.Price, nudPrice.Maximum);
             nudStock.Value = Math.Min(p.StockQuantity, (int)nudStock.Maximum);
-            cboCategory.SelectedValue = p.CategoryId;
+            if (p.CategoryId > 0)
+            {
+                cboCategory.SelectedValue = p.CategoryId;
+            }
         }
 
         // =====================================================
-        // THÊM / SỬA / XÓA
+        // THÊM / SỬA / XÓA SẢN PHẨM QUA API
         // =====================================================
 
         private bool ValidateInputs()
@@ -229,11 +282,12 @@ namespace MiniSupermarket.WinForms
             return true;
         }
 
+        // Thêm mới sản phẩm qua API
         private async void btnAdd_Click(object sender, EventArgs e)
         {
             if (!ValidateInputs()) return;
 
-            var newProduct = new
+            var newProd = new
             {
                 Barcode = txtBarcode.Text.Trim(),
                 ProductName = txtProductName.Text.Trim(),
@@ -242,14 +296,23 @@ namespace MiniSupermarket.WinForms
                 CategoryId = (int)cboCategory.SelectedValue!
             };
 
-            if (await SendAsync(() => ApiClientService.Client.PostAsJsonAsync("products", newProduct),
-                    "Thêm mới sản phẩm thành công!"))
+            var res = await ApiClientService.Client.PostAsJsonAsync("products", newProd);
+            if (res.IsSuccessStatusCode)
             {
+                MessageBox.Show("Thêm mới sản phẩm thành công!", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ClearInputs();
-                await LoadProductsAsync();
+                await LoadProductsPagedAsync();
+            }
+            else
+            {
+                string detail = await res.Content.ReadAsStringAsync();
+                MessageBox.Show($"Thêm thất bại. Mã lỗi: {res.StatusCode}\n{detail}", "Cảnh báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
+        // Cập nhật sản phẩm qua API
         private async void btnUpdate_Click(object sender, EventArgs e)
         {
             if (!int.TryParse(txtId.Text, out int id))
@@ -271,13 +334,22 @@ namespace MiniSupermarket.WinForms
                 CategoryId = (int)cboCategory.SelectedValue!
             };
 
-            if (await SendAsync(() => ApiClientService.Client.PutAsJsonAsync($"products/{id}", updated),
-                    "Cập nhật sản phẩm thành công!"))
+            var res = await ApiClientService.Client.PutAsJsonAsync($"products/{id}", updated);
+            if (res.IsSuccessStatusCode)
             {
-                await LoadProductsAsync();
+                MessageBox.Show("Cập nhật sản phẩm thành công!", "Thông báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await LoadProductsPagedAsync();
+            }
+            else
+            {
+                string detail = await res.Content.ReadAsStringAsync();
+                MessageBox.Show($"Cập nhật thất bại. Mã lỗi: {res.StatusCode}\n{detail}", "Cảnh báo",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
+        // Xóa sản phẩm qua API
         private async void btnDelete_Click(object sender, EventArgs e)
         {
             if (!int.TryParse(txtId.Text, out int id))
@@ -287,31 +359,37 @@ namespace MiniSupermarket.WinForms
                 return;
             }
 
-            var confirm = MessageBox.Show(
-                $"Xác nhận xóa sản phẩm \"{txtProductName.Text}\" (ID = {id})?",
+            var confirm = MessageBox.Show($"Bạn có chắc chắn muốn xóa sản phẩm #{id} ({txtProductName.Text})?",
                 "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            if (confirm != DialogResult.Yes) return;
-
-            if (await SendAsync(() => ApiClientService.Client.DeleteAsync($"products/{id}"),
-                    "Đã xóa sản phẩm!"))
+            if (confirm == DialogResult.Yes)
             {
-                ClearInputs();
-                await LoadProductsAsync();
+                var res = await ApiClientService.Client.DeleteAsync($"products/{id}");
+                if (res.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Đã xóa sản phẩm thành công!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ClearInputs();
+                    await LoadProductsPagedAsync();
+                }
+                else
+                {
+                    string detail = await res.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Xóa thất bại. Mã lỗi: {res.StatusCode}\n{detail}", "Cảnh báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
         }
 
+        // Nút làm mới danh sách
         private async void btnLoad_Click(object sender, EventArgs e)
         {
             ClearInputs();
             txtSearchBarcode.Clear();
             if (cboFilterCategory.Items.Count > 0) cboFilterCategory.SelectedIndex = 0;
-            await LoadProductsAsync();
+            _currentPage = 1;
+            await LoadProductsPagedAsync();
         }
-
-        // =====================================================
-        // TIỆN ÍCH
-        // =====================================================
 
         private void ClearInputs()
         {
@@ -324,35 +402,111 @@ namespace MiniSupermarket.WinForms
             txtBarcode.Focus();
         }
 
-        /// <summary>
-        /// Gửi request, hiện thông báo thành công/thất bại. Trả về true nếu thành công.
-        /// </summary>
-        private async Task<bool> SendAsync(Func<Task<HttpResponseMessage>> request, string successMessage)
+        // =====================================================
+        // TIÊU CHÍ 43: HUY HIỆU & CẢNH BÁO HÀNG SẮP HẾT KHO
+        // Nghiệp vụ: Trên lưới DataGridView, các sản phẩm có số lượng tồn <= 10
+        // sẽ được tự động tô màu nền đỏ/cam cảnh báo.
+        // Kỹ thuật: Bắt sự kiện CellFormatting của DataGridView:
+        // nếu cột StockQuantity <= 10 thì đổi e.CellStyle.BackColor = Color.LightCoral
+        // =====================================================
+        private void dgvProducts_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.RowIndex >= dgvProducts.Rows.Count) return;
+
+            // Kiểm tra cột StockQuantity (Tồn kho)
+            if (dgvProducts.Columns[e.ColumnIndex]?.DataPropertyName == "StockQuantity" && e.Value != null)
+            {
+                if (e.CellStyle != null && int.TryParse(e.Value.ToString(), out int qty) && qty <= 10)
+                {
+                    e.CellStyle.BackColor = Color.LightCoral;
+                    e.CellStyle.ForeColor = Color.DarkRed;
+                    e.CellStyle.SelectionBackColor = Color.IndianRed;
+                    e.CellStyle.SelectionForeColor = Color.White;
+                    e.CellStyle.Font = new Font(dgvProducts.Font, FontStyle.Bold);
+                }
+            }
+        }
+
+        // =====================================================
+        // TIÊU CHÍ 48: XUẤT BÁO CÁO DANH MỤC RA EXCEL / CSV
+        // Nghiệp vụ: Quản lý có thể bấm nút "Xuất Excel" để tải danh sách
+        // toàn bộ mặt hàng kèm số lượng tồn kho ra tệp .xlsx / .csv
+        // Kỹ thuật: Xuất chuỗi CSV với UTF-8 BOM trực tiếp phía WinForms
+        // =====================================================
+        private async void btnExportExcel_Click(object? sender, EventArgs e)
         {
             try
             {
-                var res = await request();
+                btnExportExcel.Enabled = false;
+                string search = txtSearchBarcode.Text.Trim();
+                int categoryId = (cboFilterCategory.SelectedItem as CategoryComboDto)?.CategoryId ?? 0;
 
-                if (res.IsSuccessStatusCode)
+                // Tải danh sách đầy đủ để xuất Excel
+                string url = $"products/paged?keyword={Uri.EscapeDataString(search)}&pageNumber=1&pageSize=1000";
+                if (categoryId > 0)
                 {
-                    MessageBox.Show(successMessage, "Thông báo",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return true;
+                    url += $"&categoryId={categoryId}";
                 }
 
-                string detail = await res.Content.ReadAsStringAsync();
-                if (detail.Length > 300) detail = detail[..300] + "...";
+                var result = await ApiClientService.Client.GetFromJsonAsync<PagedViewResult<ProductItemViewDto>>(url);
+                var items = result?.Items ?? new List<ProductItemViewDto>();
 
-                MessageBox.Show($"Thao tác thất bại (mã {(int)res.StatusCode}).\n{detail}", "Lỗi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (items.Count == 0)
+                {
+                    MessageBox.Show("Không có dữ liệu sản phẩm để xuất file!", "Thông báo",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                using var sfd = new SaveFileDialog
+                {
+                    Filter = "Tệp CSV (Excel hỗ trợ) (*.csv)|*.csv|Tất cả tệp (*.*)|*.*",
+                    FileName = $"DanhSachSanPham_{DateTime.Now:yyyyMMdd_HHmmss}.csv",
+                    Title = "Xuất danh mục sản phẩm kèm tồn kho ra Excel/CSV"
+                };
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    var sb = new System.Text.StringBuilder();
+                    // Tiêu đề cột
+                    sb.AppendLine("Mã sản phẩm,Mã vạch,Tên sản phẩm,Đơn giá (VNĐ),Số lượng tồn kho,Nhóm hàng,Cảnh báo tồn kho");
+
+                    foreach (var item in items)
+                    {
+                        string alert = item.StockQuantity <= 10 ? "SẮP HẾT HÀNG (<=10)" : "Bình thường";
+                        string prodName = $"\"{item.ProductName.Replace("\"", "\"\"")}\"";
+                        string catName = $"\"{item.CategoryName.Replace("\"", "\"\"")}\"";
+                        string barcode = $"\"{item.Barcode}\"";
+                        sb.AppendLine($"{item.ProductId},{barcode},{prodName},{item.Price},{item.StockQuantity},{catName},{alert}");
+                    }
+
+                    // Ghi file với UTF-8 BOM để Excel hiển thị tiếng Việt có dấu chuẩn 100%
+                    var utf8Bom = new System.Text.UTF8Encoding(true);
+                    await System.IO.File.WriteAllTextAsync(sfd.FileName, sb.ToString(), utf8Bom);
+
+                    var openConfirm = MessageBox.Show(
+                        $"Đã xuất thành công {items.Count} sản phẩm ra tệp:\n{sfd.FileName}\n\nBạn có muốn mở tệp ngay bây giờ?",
+                        "Xuất Excel thành công", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+
+                    if (openConfirm == DialogResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = sfd.FileName,
+                            UseShellExecute = true
+                        });
+                    }
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi kết nối máy chủ: " + ex.Message, "Lỗi",
+                MessageBox.Show("Lỗi khi xuất file: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            return false;
+            finally
+            {
+                btnExportExcel.Enabled = true;
+            }
         }
     }
 }
