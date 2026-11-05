@@ -628,8 +628,8 @@ namespace MiniSupermarket.API.Data
                     CustomerName = "Nguyễn Văn An",
                     PhoneNumber = "0901234567",
                     Address = "25 Nguyễn Huệ, Phường Bến Nghé, TP. Hồ Chí Minh",
-                    RewardPoints = 120,
-                    MembershipRank = "Bạc"
+                    RewardPoints = 1500,
+                    MembershipRank = "Kim cương"
                 },
 
                 new Customer
@@ -648,8 +648,8 @@ namespace MiniSupermarket.API.Data
                     CustomerName = "Lê Minh Cường",
                     PhoneNumber = "0923456789",
                     Address = "72 Nguyễn Thị Thập, Phường Tân Quy, TP. Hồ Chí Minh",
-                    RewardPoints = 350,
-                    MembershipRank = "Vàng"
+                    RewardPoints = 2000,
+                    MembershipRank = "Kim cương"
                 },
 
                 new Customer
@@ -668,7 +668,7 @@ namespace MiniSupermarket.API.Data
                     CustomerName = "Hoàng Minh Đức",
                     PhoneNumber = "0945678901",
                     Address = "42 Điện Biên Phủ, Phường 22, TP. Hồ Chí Minh",
-                    RewardPoints = 800,
+                    RewardPoints = 3500,
                     MembershipRank = "Kim cương"
                 },
 
@@ -688,8 +688,8 @@ namespace MiniSupermarket.API.Data
                     CustomerName = "Đặng Quốc Huy",
                     PhoneNumber = "0967890123",
                     Address = "89 Quang Trung, Phường 10, TP. Hồ Chí Minh",
-                    RewardPoints = 420,
-                    MembershipRank = "Vàng"
+                    RewardPoints = 1200,
+                    MembershipRank = "Kim cương"
                 },
 
                 new Customer
@@ -718,8 +718,8 @@ namespace MiniSupermarket.API.Data
                     CustomerName = "Ngô Thị Mai",
                     PhoneNumber = "0990123456",
                     Address = "58 Lạc Long Quân, Phường 10, TP. Hồ Chí Minh",
-                    RewardPoints = 620,
-                    MembershipRank = "Vàng"
+                    RewardPoints = 1800,
+                    MembershipRank = "Kim cương"
                 },
 
                 new Customer
@@ -748,7 +748,7 @@ namespace MiniSupermarket.API.Data
                     CustomerName = "Đinh Minh Phúc",
                     PhoneNumber = "0863456789",
                     Address = "235 Tỉnh Lộ 10, Phường Bình Trị Đông, TP. Hồ Chí Minh",
-                    RewardPoints = 950,
+                    RewardPoints = 2500,
                     MembershipRank = "Kim cương"
                 },
 

@@ -271,15 +271,22 @@ namespace MiniSupermarket.WinForms
         private void chkRedeemPoints_CheckedChanged(object? sender, EventArgs e)
         {
             nudPointsToRedeem.Enabled = chkRedeemPoints.Checked;
+            if (chkRedeemPoints.Checked && _customer != null && _customer.RewardPoints > 0)
+            {
+                decimal gross = GetGrossTotal();
+                int maxPointsNeeded = (int)Math.Ceiling(gross / 1000m);
+                int defaultPoints = Math.Min(_customer.RewardPoints, Math.Max(10, maxPointsNeeded));
+                if (nudPointsToRedeem.Value == 0)
+                {
+                    nudPointsToRedeem.Value = Math.Min(defaultPoints, nudPointsToRedeem.Maximum);
+                }
+            }
             UpdateCartDisplay();
         }
 
         private void nudPointsToRedeem_ValueChanged(object? sender, EventArgs e)
         {
-            if (chkRedeemPoints.Checked)
-            {
-                UpdateCartDisplay();
-            }
+            UpdateCartDisplay();
         }
 
         // =====================================================

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -191,6 +191,53 @@ namespace MiniSupermarket.API.Controllers
             {
                 return Conflict(new { message = "Không thể xóa: khách hàng đã có hóa đơn." });
             }
+        }
+        public class RedeemPointsRequest
+        {
+            [Range(1, 1000000, ErrorMessage = "Số điểm đổi phải lớn hơn 0.")]
+            public int Points { get; set; }
+
+            public string? Note { get; set; } = "Đổi điểm thưởng trừ tiền / quà tặng";
+        }
+
+        // POST api/customers/5/redeem-points
+        // Tiêu chí 47: Đổi điểm thưởng tích lũy (1 điểm = 1.000đ)
+        [HttpPost("{id:int}/redeem-points")]
+        public async Task<IActionResult> RedeemPoints(int id, [FromBody] RedeemPointsRequest req)
+        {
+            var entity = await _db.Customers.FirstOrDefaultAsync(c => c.CustomerId == id);
+            if (entity == null)
+                return NotFound(new { message = "Không tìm thấy khách hàng." });
+
+            if (req.Points <= 0)
+                return BadRequest(new { message = "Số điểm đổi phải lớn hơn 0." });
+
+            if (entity.RewardPoints < req.Points)
+            {
+                return BadRequest(new
+                {
+                    message = $"Khách hàng chỉ có {entity.RewardPoints} điểm, không đủ để đổi {req.Points} điểm."
+                });
+            }
+
+            entity.RewardPoints -= req.Points;
+            entity.MembershipRank = RankByPoints(entity.RewardPoints);
+            await _db.SaveChangesAsync();
+
+            decimal discountValue = req.Points * 1000m; // 1 điểm = 1.000 VNĐ
+            return Ok(new
+            {
+                success = true,
+                message = $"Đổi thành công {req.Points} điểm thưởng (tương đương {discountValue:N0} đ)!",
+                customerId = entity.CustomerId,
+                customerName = entity.CustomerName,
+                phoneNumber = entity.PhoneNumber,
+                pointsRedeemed = req.Points,
+                discountValue = discountValue,
+                remainingPoints = entity.RewardPoints,
+                membershipRank = entity.MembershipRank,
+                note = req.Note
+            });
         }
     }
 }
