@@ -269,4 +269,6 @@ Quy trình hủy đơn hàng và hoàn trả kho:
 
 ---
 
-*Bản quyền © 2026 – Nguyễn Tuấn Anh – Dự án thực hành Lập trình Ứng dụng .NET Core – Nhánh Buổi 5*
+Tác giả: Nguyễn Tuấn Anh
+MSSV:2124110146
+Lớp: CCQ2411D
