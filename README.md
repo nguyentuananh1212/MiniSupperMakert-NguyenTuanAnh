@@ -25,20 +25,20 @@
 
 ## 1. Giới thiệu dự án
 
-**MiniSupermarket Family Fresh** là ứng dụng quản lý siêu thị mini được xây dựng theo kiến trúc **3 lớp (3-Tier Architecture)**:
+MiniSupermarket Family Fresh là ứng dụng quản lý siêu thị mini được xây dựng theo kiến trúc 3 lớp (3-Tier Architecture):
 
-- **Tầng Giao diện (Presentation):** Windows Forms – giao diện bán hàng POS và quản lý nội bộ.
-- **Tầng Xử lý (Business Logic):** ASP.NET Core Web API – xử lý nghiệp vụ, bảo mật JWT, phân quyền theo vai trò.
-- **Tầng Dữ liệu (Data Access):** Entity Framework Core + ADO.NET thuần – kết nối SQL Server.
+- **Tầng Giao diện (Presentation):** Windows Forms – cung cấp giao diện bán hàng POS và quản lý nội bộ.
+- **Tầng Xử lý (Business Logic):** ASP.NET Core Web API – xử lý logic nghiệp vụ, bảo mật JWT Token, kiểm soát phân quyền theo vai trò.
+- **Tầng Dữ liệu (Data Access):** Entity Framework Core kết hợp ADO.NET thuần – giao tiếp và thao tác trực tiếp với SQL Server.
 
 ---
 
 ## 2. Kiến trúc hệ thống
 
-Ứng dụng giao tiếp theo mô hình **Client – Server** qua giao thức HTTP với JWT Bearer Token:
+Ứng dụng hoạt động theo mô hình Client – Server thông qua giao thức HTTP có gắn JWT Bearer Token:
 
-- **WinForms** gửi request lên **ASP.NET Core Web API**
-- **Web API** xử lý nghiệp vụ, xác thực quyền và thao tác với **SQL Server** thông qua EF Core hoặc ADO.NET thuần
+- Giao diện Windows Forms gửi yêu cầu đến ASP.NET Core Web API.
+- Web API tiếp nhận, xác thực vai trò và xử lý dữ liệu với cơ sở dữ liệu SQL Server thông qua Entity Framework Core hoặc các đối tượng ADO.NET thuần.
 
 ---
 
@@ -50,7 +50,7 @@
 | Giao diện | Windows Forms (.NET 8) |
 | ORM | Entity Framework Core 8 |
 | ADO.NET thuần | SqlConnection, SqlCommand, SqlDataReader, SqlTransaction |
-| Bảo mật | JWT Bearer Token, BCrypt password hashing |
+| Bảo mật | JWT Bearer Token, thuật toán mã hóa mật khẩu BCrypt |
 | Cơ sở dữ liệu | Microsoft SQL Server |
 | Kiểm tra API | Swagger / OpenAPI |
 
@@ -58,33 +58,25 @@
 
 ## 4. Cấu trúc thư mục
 
-**MiniSupermarket.API** – Backend Web API:
-- `Controllers/AuthController.cs` – Đăng nhập, cấp JWT Token
-- `Controllers/ProductsController.cs` – Quản lý sản phẩm (EF Core)
-- `Controllers/AdoProductController.cs` – Tra cứu Barcode (ADO.NET thuần)
-- `Controllers/CategoriesController.cs` – Quản lý danh mục
-- `Controllers/CustomersController.cs` – Khách hàng & tích điểm thưởng
-- `Controllers/UsersController.cs` – Quản trị tài khoản người dùng
-- `Controllers/CheckoutController.cs` – Thanh toán POS (ADO.NET + SqlTransaction)
-- `Controllers/OrdersController.cs` – Quản lý đơn hàng (EF Core)
-- `Controllers/ReportsController.cs` – Báo cáo doanh thu (Stored Procedure)
-- `Models/` – Các lớp thực thể: Order, OrderDetail, Product, Category, Customer, User, OrderStatus
-- `Dtos/` – Các lớp DTO trao đổi dữ liệu với client
-- `Data/SupermarketDbContext.cs` – DbContext EF Core
-- `Migrations/` – Lịch sử migration cơ sở dữ liệu
+**Dự án MiniSupermarket.API (Backend Web API):**
+- Thư mục Controllers: Chứa các bộ điều khiển xử lý nghiệp vụ như AuthController (đăng nhập, cấp JWT), ProductsController (quản lý sản phẩm qua EF Core), AdoProductController (tra cứu mã vạch qua ADO.NET), CategoriesController (quản lý nhóm hàng), CustomersController (khách hàng và tích điểm), UsersController (quản trị tài khoản), CheckoutController (thanh toán POS bọc trong SqlTransaction), OrdersController (quản lý danh sách đơn hàng), ReportsController (báo cáo doanh thu qua Stored Procedure).
+- Thư mục Models: Chứa các lớp thực thể Order, OrderDetail, Product, Category, Customer, User, OrderStatus.
+- Thư mục DTOs: Chứa các lớp truyền tải dữ liệu giữa client và máy chủ.
+- Thư mục Data: Chứa lớp SupermarketDbContext quản lý kết nối EF Core.
+- Thư mục Migrations: Chứa toàn bộ lịch sử khởi tạo và cập nhật cấu trúc cơ sở dữ liệu.
 
-**MiniSupermarket.WinForms** – Frontend Windows Forms:
-- `FormLogin.cs` – Đăng nhập + lấy JWT Token
-- `FormMainShell.cs` – Khung chính + sidebar điều hướng + phân quyền
-- `FormPOS.cs` – Quầy bán hàng POS
-- `FormOrderManagement.cs` – ✅ Quản lý đơn hàng *(Mới – Buổi 5)*
-- `FormProductManagement.cs` – Quản lý sản phẩm
-- `FormCategoryManagement.cs` – Quản lý danh mục
-- `FormCustomerManagement.cs` – Quản lý khách hàng
-- `FormUserManagement.cs` – Quản trị tài khoản
-- `FormQuickReport.cs` – Báo cáo nhanh doanh thu
-- `SessionManager.cs` – Lưu phiên đăng nhập + JWT
-- `Services/ApiClientService.cs` – HttpClient tự động gắn Bearer Token
+**Dự án MiniSupermarket.WinForms (Frontend Windows Forms):**
+- FormLogin: Màn hình đăng nhập xác thực và nhận JWT Token.
+- FormMainShell: Khung làm việc chính chứa thanh điều hướng sidebar và kiểm soát phân quyền hiển thị.
+- FormPOS: Quầy bán hàng và tính tiền thu ngân.
+- FormOrderManagement: Màn hình quản lý đơn hàng, xem chi tiết và hủy đơn.
+- FormProductManagement: Màn hình quản lý danh sách sản phẩm và tồn kho.
+- FormCategoryManagement: Màn hình quản lý danh mục nhóm hàng.
+- FormCustomerManagement: Màn hình quản lý thông tin khách hàng và điểm tích lũy.
+- FormUserManagement: Màn hình quản trị người dùng và phân quyền hệ thống.
+- FormQuickReport: Màn hình xem nhanh báo cáo doanh thu.
+- SessionManager: Lưu trữ thông tin phiên làm việc và mã JWT Token.
+- Thư mục Services: Chứa ApiClientService cấu hình HttpClient tự động gắn Bearer Token.
 
 ---
 
@@ -92,234 +84,189 @@
 
 ### Các bảng chính
 
-| Bảng | Mô tả |
+| Tên bảng | Ý nghĩa nghiệp vụ |
 |---|---|
-| Products | Sản phẩm, giá bán, tồn kho, mã vạch |
-| Categories | Danh mục nhóm hàng |
-| Customers | Khách hàng thân thiết, điểm thưởng, hạng thành viên |
-| Users | Tài khoản đăng nhập, vai trò (Admin/Cashier/Warehouse) |
-| Orders | Hóa đơn bán hàng: mã, thu ngân, tổng tiền, trạng thái |
-| OrderDetails | Chi tiết từng sản phẩm trong hóa đơn: số lượng, đơn giá |
+| Products | Quản lý thông tin sản phẩm, giá niêm yết, số lượng tồn kho, mã vạch |
+| Categories | Quản lý danh mục nhóm hàng hóa |
+| Customers | Quản lý khách hàng thân thiết, số điểm thưởng tích lũy, hạng thành viên |
+| Users | Quản lý tài khoản đăng nhập, mật khẩu mã hóa và vai trò hệ thống |
+| Orders | Quản lý thông tin hóa đơn bán hàng, thu ngân phụ trách, tổng tiền, trạng thái đơn |
+| OrderDetails | Quản lý chi tiết từng món hàng trong đơn, số lượng mua, đơn giá tại thời điểm bán |
 
-### Các Migration đã thực hiện
+### Các đợt Migration tiêu biểu
 
-| Migration | Nội dung |
-|---|---|
-| InitialCreateDatabase | Tạo bảng Products, Categories, Users |
-| AddCustomersTable | Thêm bảng Customers & điểm thưởng |
-| AddOrdersTables | Thêm bảng Orders & OrderDetails |
-| UpdateCreateDatabase | Cập nhật cấu trúc bảng |
-| FamilyFresh | Cập nhật dữ liệu danh mục Family Fresh |
+- InitialCreateDatabase: Khởi tạo các bảng sản phẩm, danh mục và người dùng.
+- AddCustomersTable: Bổ sung bảng khách hàng và trường điểm thưởng.
+- AddOrdersTables: Bổ sung bảng hóa đơn và chi tiết hóa đơn.
+- UpdateCreateDatabase: Hoàn thiện ràng buộc quan hệ giữa các thực thể.
+- FamilyFresh: Đồng bộ bộ danh mục thương hiệu Family Fresh.
 
 ---
 
 ## 6. Hướng dẫn cài đặt & chạy
 
 ### Yêu cầu môi trường
-- .NET SDK 8.0 trở lên
-- SQL Server (LocalDB hoặc SQL Server Express)
-- Visual Studio 2022 hoặc VS Code
+- Bộ công cụ .NET SDK phiên bản 8.0 trở lên.
+- Hệ quản trị cơ sở dữ liệu Microsoft SQL Server (LocalDB hoặc SQL Express).
+- Môi trường phát triển Visual Studio 2022 hoặc Visual Studio Code.
 
-### Bước 1 – Cấu hình chuỗi kết nối
-Mở file `MiniSupermarket.API/appsettings.json`, cập nhật `Server` và `Database` cho phù hợp với máy.
-
-### Bước 2 – Tạo cơ sở dữ liệu
-Chạy lệnh `dotnet ef database update` trong thư mục `MiniSupermarket.API`.
-
-### Bước 3 – Tạo Stored Procedure trên SSMS
-Mở SQL Server Management Studio và tạo procedure `sp_GetRevenueByCashier` để tổng hợp doanh thu theo từng thu ngân.
-
-### Bước 4 – Chạy Web API
-Chạy dự án `MiniSupermarket.API`. API sẽ chạy tại `https://localhost:5237` và Swagger UI tại `/swagger`.
-
-### Bước 5 – Chạy WinForms
-Chạy dự án `MiniSupermarket.WinForms`.
-
-> **Tài khoản mặc định:** `admin` / `admin123` (vai trò Admin)
+### Các bước thực hiện
+- Bước 1: Mở tệp cấu hình appsettings.json trong dự án API để cập nhật chuỗi kết nối DefaultConnection trỏ tới máy chủ SQL Server thực tế.
+- Bước 2: Cập nhật cơ sở dữ liệu bằng công cụ Entity Framework Core CLI.
+- Bước 3: Mở SQL Server Management Studio để tạo thủ tục lưu trữ sp_GetRevenueByCashier phục vụ chức năng báo cáo doanh thu theo thu ngân.
+- Bước 4: Khởi chạy dự án MiniSupermarket.API để kích hoạt Web API và giao diện Swagger UI.
+- Bước 5: Khởi chạy dự án MiniSupermarket.WinForms và đăng nhập bằng tài khoản quản trị viên.
 
 ---
 
 ## 7. Danh sách API Endpoints
 
-### 🔐 Xác thực
-| Method | Endpoint | Mô tả |
-|---|---|---|
-| POST | /api/auth/login | Đăng nhập, trả về JWT Token |
+### Xác thực hệ thống
+- POST /api/auth/login: Đăng nhập hệ thống và trả về JWT Token.
 
-### 📦 Sản phẩm
-| Method | Endpoint | Mô tả |
-|---|---|---|
-| GET | /api/products | Lấy danh sách sản phẩm (EF Core) |
-| GET | /api/products/{id} | Lấy sản phẩm theo ID |
-| POST | /api/products | Thêm sản phẩm mới |
-| PUT | /api/products/{id} | Cập nhật thông tin sản phẩm |
-| DELETE | /api/products/{id} | Xoá sản phẩm |
-| GET | /api/ado-products/barcode/{barcode} | ⚡ Tra cứu nhanh bằng mã vạch (ADO.NET) |
+### Quản lý sản phẩm
+- GET /api/products: Lấy toàn bộ danh sách sản phẩm qua Entity Framework Core.
+- GET /api/products/{id}: Lấy thông tin chi tiết một sản phẩm theo mã định danh.
+- POST /api/products: Thêm mới một sản phẩm vào cơ sở dữ liệu.
+- PUT /api/products/{id}: Cập nhật thông tin sản phẩm hiện có.
+- DELETE /api/products/{id}: Xóa sản phẩm khỏi hệ thống.
+- GET /api/ado-products/barcode/{barcode}: Tra cứu nhanh thông tin sản phẩm theo mã vạch bằng ADO.NET thuần.
 
-### 🛒 Bán hàng & Đơn hàng
-| Method | Endpoint | Mô tả |
-|---|---|---|
-| POST | /api/checkout | Thanh toán POS (ADO.NET + SqlTransaction ACID) |
-| DELETE | /api/checkout/{orderId} | Hủy đơn + hoàn trả kho (SqlTransaction) |
-| GET | /api/orders | Danh sách tất cả đơn hàng kèm chi tiết |
-| GET | /api/orders/{id} | Chi tiết một đơn hàng |
-| PUT | /api/orders/{id} | Cập nhật trạng thái đơn hàng |
-| DELETE | /api/orders/{id} | Hủy đơn hàng (EF Core + Transaction) |
+### Nghiệp vụ bán hàng và đơn hàng
+- POST /api/checkout: Thực hiện thanh toán đơn hàng POS, bọc kín toàn bộ thao tác trong SqlTransaction đảm bảo chuẩn ACID.
+- DELETE /api/checkout/{orderId}: Hủy đơn hàng và tự động hoàn trả số lượng tồn kho qua SqlTransaction.
+- GET /api/orders: Lấy danh sách tất cả các đơn hàng kèm chi tiết mặt hàng.
+- GET /api/orders/{id}: Lấy thông tin chi tiết của một đơn hàng cụ thể.
+- PUT /api/orders/{id}: Cập nhật trạng thái xử lý của đơn hàng.
+- DELETE /api/orders/{id}: Hủy đơn hàng và cập nhật trạng thái hủy.
 
-### 👥 Khách hàng
-| Method | Endpoint | Mô tả |
-|---|---|---|
-| GET | /api/customers | Danh sách khách hàng thân thiết |
-| POST | /api/customers | Thêm khách hàng mới |
-| PUT | /api/customers/{id} | Cập nhật thông tin khách hàng |
+### Quản lý khách hàng
+- GET /api/customers: Lấy danh sách khách hàng thân thiết.
+- POST /api/customers: Thêm mới hồ sơ khách hàng.
+- PUT /api/customers/{id}: Cập nhật thông tin khách hàng.
 
-### 📊 Báo cáo
-| Method | Endpoint | Mô tả |
-|---|---|---|
-| GET | /api/reports/revenue | Báo cáo doanh thu theo thu ngân (Stored Procedure) |
+### Báo cáo thống kê
+- GET /api/reports/revenue: Kết xuất báo cáo doanh thu ca trực theo thu ngân thông qua Stored Procedure.
 
 ---
 
 ## 8. Các chức năng chính
 
-### 🖥️ Quầy bán hàng POS
-- Quét mã vạch → thêm sản phẩm vào giỏ hàng tự động
-- Hỗ trợ phím tắt: **F2** (focus ô barcode), **F9** (thanh toán), **+/-** (tăng/giảm số lượng), **Delete** (xoá dòng)
-- Nhận diện khách hàng thân thiết qua số điện thoại
-- Đổi điểm thưởng để giảm tiền hóa đơn (1 điểm = 1.000 VNĐ)
-- Thanh toán bảo vệ bởi **SqlTransaction ACID**: tạo Order + OrderDetails + trừ kho + tích điểm trong 1 giao dịch
+### Quầy bán hàng POS
+- Tự động nhận diện và đưa sản phẩm vào giỏ hàng ngay khi quét mã vạch.
+- Trang bị hệ thống phím tắt thao tác nhanh: F2 để trỏ vào ô nhập mã vạch, F9 để thanh toán, phím cộng hoặc trừ để tăng giảm số lượng, phím Delete để xóa món hàng khỏi giỏ.
+- Hỗ trợ tra cứu hội viên qua số điện thoại để hưởng ưu đãi.
+- Áp dụng cơ chế đổi điểm thưởng trừ trực tiếp vào tổng tiền thanh toán (tỷ lệ 1 điểm tương đương 1.000 VNĐ).
+- Thực thi quy trình thanh toán toàn vẹn qua SqlTransaction: sinh hóa đơn, lưu chi tiết món hàng, trừ kho sản phẩm và cộng điểm tích lũy trong cùng một giao dịch.
 
-### 📋 Quản lý đơn hàng ✅ *(Mới – Buổi 5)*
-- Xem danh sách toàn bộ đơn hàng: mã, ngày lập, thu ngân, tổng tiền, trạng thái
-- Click dòng → xem chi tiết từng sản phẩm trong đơn (mã SP, số lượng, đơn giá, thành tiền)
-- Hủy đơn hàng → tự động khôi phục tồn kho và điểm thưởng khách hàng
-- Trạng thái đơn: **Pending** (Chờ xử lý) / **Completed** (Hoàn thành) / **Cancelled** (Đã hủy)
+### Quản lý đơn hàng
+- Hiển thị danh sách tổng thể các hóa đơn gồm mã đơn, thời gian lập, thu ngân đứng ca, tổng tiền và trạng thái đơn hàng.
+- Xem danh sách chi tiết các mặt hàng đã mua tương ứng với từng hóa đơn được chọn.
+- Cho phép hủy đơn hàng hợp lệ kèm cơ chế tự động bù trả lại số lượng tồn kho và điều chỉnh điểm thưởng khách hàng.
+- Theo dõi các trạng thái đơn hàng: Chờ xử lý, Hoàn thành, Đã hủy.
 
-### 👤 Quản lý khách hàng
-- Thêm/sửa/xoá khách hàng thân thiết
-- Tích điểm tự động: 10.000 VNĐ = 1 điểm thưởng
-- Hạng thành viên tự động: Đồng → Bạc → Vàng → Kim cương
+### Quản lý khách hàng
+- Thêm mới, chỉnh sửa thông tin khách hàng thành viên.
+- Tự động tích lũy điểm thưởng theo giá trị hóa đơn (cứ mỗi 10.000 VNĐ thanh toán được tích 1 điểm).
+- Tự động nâng hạng thành viên dựa trên điểm tích lũy (Đồng, Bạc, Vàng, Kim cương).
 
-### 📊 Báo cáo doanh thu
-- Báo cáo doanh thu phân theo từng thu ngân thông qua **Stored Procedure** `sp_GetRevenueByCashier`
+### Báo cáo doanh thu
+- Thống kê tổng số đơn hàng đã hoàn tất và tổng doanh thu thu về theo từng nhân viên thu ngân qua Stored Procedure sp_GetRevenueByCashier.
 
 ---
 
 ## 9. Phân quyền người dùng
 
-| Chức năng | Admin | Cashier | Warehouse |
-|---|:---:|:---:|:---:|
-| 🖥️ Bán hàng (POS) | ✅ | ✅ | ❌ |
-| 📂 Quản lý Danh mục | ✅ | ✅ | ✅ |
-| 📦 Quản lý Sản phẩm | ✅ | ✅ | ✅ |
-| 🛒 Quản lý Đơn hàng | ✅ | ✅ | ❌ |
-| 👥 Quản lý Khách hàng | ✅ | ❌ | ❌ |
-| 📊 Báo cáo Doanh thu | ✅ | ❌ | ❌ |
-| 🔑 Quản trị Tài khoản | ✅ | ❌ | ❌ |
+Hệ thống phân quyền được kiểm soát chặt chẽ qua 2 lớp (lớp 1 ẩn hiện nút trên thanh điều hướng và lớp 2 kiểm tra vai trò trước khi khởi tạo form):
 
-> Phân quyền được kiểm tra **2 lớp**: ẩn/hiện nút sidebar (lớp 1) và chặn logic khi click trước khi mở form (lớp 2).
+- **Vai trò Admin (Quản trị viên):** Được cấp toàn quyền truy cập tất cả các phân hệ gồm Bán hàng POS, Quản lý Danh mục, Quản lý Sản phẩm, Quản lý Khách hàng, Quản lý Đơn hàng, Báo cáo Doanh thu và Quản trị Tài khoản.
+- **Vai trò Cashier (Thu ngân):** Được cấp quyền truy cập các màn hình phục vụ trực tiếp ca bán lẻ gồm Bán hàng POS, Quản lý Danh mục, Quản lý Sản phẩm và Quản lý Đơn hàng (Hóa đơn).
+- **Vai trò Warehouse (Thủ kho):** Được cấp quyền thao tác trên hai phân hệ Quản lý Danh mục và Quản lý Sản phẩm để phục vụ công tác kiểm kê và xuất nhập hàng.
 
 ---
 
 ## 10. Nội dung Buổi 5 – ADO.NET Nâng cao & Giao dịch POS
 
-### 🔹 Tiết 1 – Kiến trúc ADO.NET cơ bản
+### Tiết 1 – Kiến trúc ADO.NET cơ bản
 
-**5 đối tượng cốt lõi của ADO.NET:**
+Năm thành phần cốt lõi của thư viện ADO.NET:
+- SqlConnection: Đóng vai trò như đường dây liên lạc vật lý kết nối trực tiếp từ mã nguồn .NET đến máy chủ SQL Server.
+- SqlCommand: Đóng vai trò như tờ yêu cầu cụ thể, chứa câu lệnh truy vấn SQL hoặc tên Stored Procedure cần thực thi.
+- SqlParameter: Đóng vai trò truyền tải tham số dữ liệu một cách an toàn, cô lập giá trị nhập vào để triệt tiêu hoàn toàn nguy cơ tấn công phá hoại qua lỗ hổng SQL Injection.
+- SqlDataReader: Đóng vai trò luồng đọc dữ liệu một chiều tiến về phía trước với tốc độ xử lý tức thì và tiêu tốn tối thiểu bộ nhớ RAM.
+- DataTable và SqlDataAdapter: Đóng vai trò mô hình làm việc ngắt kết nối, cho phép nạp trọn vẹn dữ liệu bảng vào bộ nhớ RAM để xử lý độc lập mà không cần duy trì kết nối mạng liên tục.
 
-| Đối tượng | Hình tượng thực tế | Vai trò kỹ thuật |
-|---|---|---|
-| SqlConnection | Đường dây điện thoại tới siêu thị | Mở/đóng kết nối vật lý tới SQL Server |
-| SqlCommand | Tờ đơn đặt hàng | Chứa câu lệnh SQL hoặc tên Stored Procedure |
-| SqlParameter | Chi tiết ghi rõ ràng, an toàn | Truyền tham số – **chống SQL Injection** |
-| SqlDataReader | Băng chuyền quét mã tính tiền | Đọc dữ liệu forward-only, tiết kiệm RAM |
-| DataTable / SqlDataAdapter | Thùng hàng đóng gói gửi về nhà | Đọc ngắt kết nối, lưu toàn bộ vào bộ nhớ |
+Ba phương thức thực thi của đối tượng SqlCommand:
+- ExecuteScalar: Dùng khi câu lệnh truy vấn chỉ trả về đúng một ô kết quả duy nhất như đếm số lượng bản ghi hoặc tính tổng tiền.
+- ExecuteNonQuery: Dùng khi thực hiện các thao tác ghi dữ liệu như thêm mới, sửa đổi hoặc xóa bỏ và nhận về số dòng bị tác động.
+- ExecuteReader: Dùng khi cần đọc duyệt danh sách dữ liệu gồm nhiều dòng và nhiều cột.
 
-**3 phương thức thực thi SqlCommand:**
+Nguyên tắc bắt buộc: Luôn sử dụng khối lệnh using cho đối tượng kết nối SqlConnection để đảm bảo tài nguyên kết nối luôn được đóng và giải phóng tự động khi hoàn thành tác vụ.
 
-| Phương thức | Dùng khi nào | Trả về |
-|---|---|---|
-| ExecuteScalar() | Truy vấn trả về 1 giá trị (tổng tiền, ID mới...) | object |
-| ExecuteNonQuery() | INSERT, UPDATE, DELETE | Số dòng bị ảnh hưởng |
-| ExecuteReader() | SELECT nhiều dòng dữ liệu | SqlDataReader |
+### Tiết 2 – Tra cứu Barcode với ADO.NET thuần
 
-**Quy tắc vàng:** Luôn bọc `SqlConnection` trong khối `using` để đảm bảo kết nối được tự động đóng dù xảy ra ngoại lệ.
+Chức năng tra cứu sản phẩm theo mã vạch tại quầy POS đòi hỏi thời gian phản hồi tức thì dưới 100 mili-giây. Thay vì sử dụng ORM cồng kềnh, hệ thống sử dụng đối tượng SqlDataReader trong ADO.NET thuần kết hợp tham số hóa an toàn qua SqlParameter để đọc trực tiếp một bản ghi duy nhất, mang lại hiệu năng cao và độ ổn định tối đa cho ca thu ngân.
 
----
+### Tiết 3 – Stored Procedure báo cáo doanh thu
 
-### 🔹 Tiết 2 – Tra cứu Barcode với ADO.NET thuần
+Để tối ưu hóa tốc độ và giảm thiểu băng thông mạng, câu lệnh tính toán tổng hợp doanh thu theo từng thu ngân được đóng gói sẵn thành thủ tục lưu trữ sp_GetRevenueByCashier trên SQL Server. Khi gọi từ phía ứng dụng C#, đối tượng SqlCommand được thiết lập kiểu thực thi StoredProcedure, giúp tận dụng kế hoạch thực thi biên dịch sẵn của hệ quản trị cơ sở dữ liệu.
 
-Endpoint `GET /api/ado-products/barcode/{barcode}` sử dụng `SqlDataReader` để tra cứu sản phẩm theo mã vạch với tốc độ dưới 100ms. Điểm mấu chốt là dùng `SqlParameter` thay vì nối chuỗi SQL trực tiếp để **ngăn chặn SQL Injection**.
+### Tiết 4 – Chuẩn ACID & SqlTransaction
 
----
+Giao dịch cơ sở dữ liệu là chuỗi thao tác liên hoàn đòi hỏi tính toàn vẹn tuyệt đối theo 4 tiêu chí ACID:
+- Atomicity (Tính nguyên tử): Toàn bộ chuỗi thao tác được coi là một khối thống nhất, tất cả cùng thành công hoặc không có thao tác nào được lưu lại.
+- Consistency (Tính nhất quán): Dữ liệu luôn chuyển dịch từ trạng thái hợp lệ này sang trạng thái hợp lệ khác, không phát sinh dữ liệu mồ côi hay dữ liệu rác.
+- Isolation (Tính cô lập): Các giao dịch thực thi đồng thời từ các quầy bán hàng khác nhau không can thiệp và không đọc dữ liệu tạm thời của nhau.
+- Durability (Tính bền vững): Khi giao dịch đã được xác nhận lưu thành công, dữ liệu được ghi đĩa vĩnh viễn và không bị thất thoát ngay cả khi xảy ra sự cố mất điện máy chủ.
 
-### 🔹 Tiết 3 – Stored Procedure báo cáo doanh thu
+Quy trình điều khiển giao dịch bằng SqlTransaction bao gồm việc kích hoạt phiên bảo vệ bằng BeginTransaction, xác nhận lưu vĩnh viễn bằng Commit và hoàn tác sạch sẽ toàn bộ trạng thái dữ liệu bằng Rollback khi xuất hiện bất kỳ ngoại lệ nào.
 
-Stored Procedure `sp_GetRevenueByCashier` được tạo trực tiếp trên SQL Server Management Studio. Procedure tổng hợp tổng số đơn hàng và doanh thu theo từng thu ngân, loại trừ các đơn đã hủy. Từ phía C#, gọi procedure bằng cách đặt `CommandType = StoredProcedure` thay vì dùng câu SQL thông thường.
+### Tiết 5 – API Checkout POS & Hủy đơn hàng
 
----
+Quy trình thanh toán hóa đơn bán lẻ khép kín gồm các bước:
+1. Kiểm tra số lượng tồn kho thực tế của từng sản phẩm trong giỏ hàng.
+2. Khởi tạo phiên giao dịch SqlTransaction bảo vệ ACID.
+3. Thêm bản ghi hóa đơn tổng vào bảng Orders và lấy mã định danh tự tăng vừa sinh.
+4. Thêm từng dòng chi tiết mặt hàng vào bảng OrderDetails.
+5. Cập nhật khấu trừ số lượng tồn kho tương ứng trong bảng Products.
+6. Cập nhật cộng điểm thưởng tích lũy cho khách hàng trong bảng Customers.
+7. Gọi Commit để xác nhận giao dịch thành công trọn vẹn, hoặc tự động kích hoạt Rollback khi giỏ hàng có sản phẩm vượt quá tồn kho để không lưu lại bất kỳ dữ liệu rác nào.
 
-### 🔹 Tiết 4 – Chuẩn ACID & SqlTransaction
-
-| Tiêu chí | Ý nghĩa |
-|---|---|
-| **A**tomicity – Nguyên tử | Tất cả bước thành công hoặc không có bước nào được lưu |
-| **C**onsistency – Nhất quán | Cơ sở dữ liệu luôn hợp lệ trước và sau giao dịch |
-| **I**solation – Cô lập | Các giao dịch đồng thời không can thiệp lẫn nhau |
-| **D**urability – Bền vững | Sau Commit, dữ liệu được lưu vĩnh viễn dù mất điện |
-
-Quy trình: `BeginTransaction()` → thực hiện các thao tác → `Commit()` nếu thành công hoặc `Rollback()` nếu gặp lỗi.
-
----
-
-### 🔹 Tiết 5 – API Checkout POS & Hủy đơn hàng
-
-**Luồng Thanh toán** (`POST /api/checkout`):
-
-1. Kiểm tra tồn kho từng sản phẩm trong giỏ hàng
-2. Bắt đầu `BeginTransaction()`
-3. INSERT vào bảng **Orders** – tạo hóa đơn tổng
-4. INSERT từng dòng vào bảng **OrderDetails**
-5. UPDATE `StockQuantity` trong **Products** – trừ kho
-6. UPDATE `RewardPoints` trong **Customers** – tích điểm thưởng
-7. `Commit()` → thành công / `Rollback()` → không để lại dữ liệu rác
-
-**Luồng Hủy đơn hàng** (`DELETE /api/checkout/{orderId}`):
-
-1. Lấy thông tin đơn hàng và điểm thưởng đã tích
-2. Lấy danh sách sản phẩm trong **OrderDetails**
-3. Bắt đầu `BeginTransaction()`
-4. UPDATE `StockQuantity` trong **Products** – hoàn trả kho
-5. UPDATE `RewardPoints` trong **Customers** – trừ điểm đã tích
-6. DELETE **OrderDetails** – xóa chi tiết trước (tránh vi phạm khóa ngoại)
-7. DELETE **Orders** – xóa hóa đơn tổng
-8. `Commit()` → hủy thành công / `Rollback()` → an toàn, dữ liệu nguyên vẹn
+Quy trình hủy đơn hàng và hoàn trả kho:
+1. Kiểm tra sự tồn tại của hóa đơn và xác định số điểm thưởng liên quan.
+2. Đọc danh sách các mặt hàng đã mua trong đơn.
+3. Khởi tạo phiên giao dịch SqlTransaction.
+4. Hoàn trả cộng dồn lại số lượng tồn kho cho các sản phẩm trong bảng Products.
+5. Khấu trừ lại số điểm thưởng đã cộng cho khách hàng trong bảng Customers.
+6. Xóa các dòng chi tiết trong OrderDetails trước để đảm bảo ràng buộc toàn vẹn.
+7. Xóa bản ghi hóa đơn trong Orders.
+8. Gọi Commit để hoàn tất việc hủy và khôi phục dữ liệu sạch sẽ vào kho.
 
 ---
 
 ## 11. Checklist tự đánh giá
 
-| STT | Hạng mục kiểm tra | Yêu cầu đạt chuẩn | Kết quả |
+| STT | Tiêu chí kiểm tra | Yêu cầu đạt chuẩn | Đánh giá |
 |---|---|---|---|
-| 1 | **ADO.NET cơ bản** (Tiết 1) | Dùng khối using, SqlParameter chống SQL Injection, hiểu ExecuteScalar / NonQuery / Reader | ✅ Đạt |
-| 2 | **Tra cứu Barcode** (Tiết 2) | GET /api/ado-products/barcode/{barcode} trả kết quả dưới 100ms bằng SqlDataReader | ✅ Đạt |
-| 3 | **Stored Procedure** (Tiết 3) | Tạo thành công sp_GetRevenueByCashier trên SSMS, gọi từ API Reports | ✅ Đạt |
-| 4 | **Chuẩn ACID** (Tiết 4) | Trình bày được 4 tiêu chí ACID, dùng BeginTransaction, Commit, Rollback | ✅ Đạt |
-| 5 | **API Checkout** (Tiết 5) | POST /api/checkout thực hiện đồng thời: tạo Order + OrderDetails + trừ kho + tích điểm | ✅ Đạt |
-| 6 | **Kiểm chứng Rollback** (Tiết 5) | Đặt hàng vượt tồn kho → API lỗi → Rollback, không để lại dữ liệu rác trong CSDL | ✅ Đạt |
-| 7 | **Bài tập mở rộng** (Tiết 5) | Hoàn thành API Hủy đơn + hoàn trả tồn kho tự động bằng SqlTransaction | ✅ Đạt |
-| 8 | **Quản lý đơn hàng UI** (Bổ sung) | Form WinForms xem danh sách, chi tiết từng dòng và hủy đơn hàng | ✅ Đạt |
+| 1 | Kiến thức ADO.NET cơ bản | Sử dụng khối using, tham số SqlParameter chống SQL Injection, vận dụng đúng 3 phương thức Execute | Đạt |
+| 2 | Tra cứu Barcode siêu tốc | Endpoint tra cứu mã vạch hoạt động dưới 100ms bằng luồng SqlDataReader | Đạt |
+| 3 | Tối ưu bằng Stored Procedure | Tạo thành công thủ tục sp_GetRevenueByCashier trên CSDL và kết xuất báo cáo doanh thu chính xác | Đạt |
+| 4 | Nắm vững chuẩn ACID | Trình bày đúng bản chất 4 tiêu chí và cơ chế điều khiển BeginTransaction, Commit, Rollback | Đạt |
+| 5 | Hoàn thiện API Checkout | Thực hiện đồng thời tạo đơn, lưu chi tiết, trừ kho và tích điểm trong cùng một giao dịch an toàn | Đạt |
+| 6 | Kiểm chứng cơ chế Rollback | Đặt mua vượt quá số lượng tồn kho, hệ thống ném lỗi và hoàn tác sạch dữ liệu không phát sinh bản ghi rác | Đạt |
+| 7 | Hoàn thiện API Hủy đơn hàng | Xây dựng thành công chức năng hủy đơn hàng kèm hoàn trả tồn kho tự động bằng SqlTransaction | Đạt |
+| 8 | Tích hợp giao diện Quản lý đơn hàng | Cung cấp giao diện WinForms xem danh sách hóa đơn, xem chi tiết và hủy đơn hàng tiện lợi | Đạt |
 
 ---
 
 ## 📌 Ghi chú kỹ thuật
 
-- Toàn bộ mật khẩu được mã hóa bằng **BCrypt** trước khi lưu vào cơ sở dữ liệu.
-- **JWT Token** hết hạn sau 8 giờ; WinForms tự động gắn vào header mỗi request.
-- Mọi thao tác ghi quan trọng (checkout, hủy đơn) được bảo vệ bởi **SqlTransaction** đảm bảo chuẩn ACID.
-- Phân quyền kiểm tra **2 lớp**: ẩn/hiện nút UI (lớp 1) và chặn logic khi click (lớp 2).
-- Nút **Quản lý đơn hàng** hiển thị cho vai trò **Admin** và **Cashier** trên sidebar.
+- Mật khẩu tài khoản được băm và mã hóa an toàn bằng thuật toán BCrypt.
+- Mã định danh JWT Token có hiệu lực trong 8 giờ và được WinForms tự động đính kèm vào phần tiêu đề của mỗi yêu cầu gửi đi.
+- Mọi thao tác ghi dữ liệu quan trọng đều được đặt trong sự bảo vệ của SqlTransaction nhằm tuân thủ nghiêm ngặt chuẩn ACID.
+- Hệ thống phân quyền hoạt động 2 lớp giúp đảm bảo an toàn truy cập ở cả tầng giao diện và tầng logic.
+- Chức năng Quản lý đơn hàng được mở quyền cho cả vai trò Admin và Thu ngân (Cashier).
 
 ---
 
-*© 2026 – Nguyễn Tuấn Anh – Bài tập thực hành Lập trình Ứng dụng .NET Core – Buổi 5*
+*Bản quyền © 2026 – Nguyễn Tuấn Anh – Dự án thực hành Lập trình Ứng dụng .NET Core – Nhánh Buổi 5*
