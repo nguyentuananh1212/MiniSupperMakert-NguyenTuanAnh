@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Họ tên sinh viên: Nguyễn Tuấn Anh
  * Mô tả: FormMainShell - Form khung chính chứa sidebar điều hướng và panel nội dung
  */
@@ -153,8 +153,8 @@ namespace MiniSupermarket.WinForms
                     return true;
 
                 case "CASHIER":
-                    // Thu ngân thấy: POS, Danh mục, Sản phẩm và Quản lý đơn hàng (nút động)
-                    return btn == btnPOS || btn == btnCategory || btn == btnProduct;
+                    // Thu ngân chỉ xem: Quản lý Sản phẩm, Quản lý Khách hàng (và Quản lý Đơn hàng)
+                    return btn == btnProduct || btn == btnCustomer;
 
                 case "WAREHOUSE":
                     return btn == btnCategory || btn == btnProduct;
@@ -204,7 +204,7 @@ namespace MiniSupermarket.WinForms
                     break;
 
                 case "CASHIER":
-                    btnPOS_Click(btnPOS, EventArgs.Empty);
+                    btnProduct_Click(btnProduct, EventArgs.Empty);
                     break;
             }
         }
