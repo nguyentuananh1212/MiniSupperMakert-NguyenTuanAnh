@@ -49,10 +49,12 @@ namespace MiniSupermarket.API.Controllers
         public async Task<IActionResult> GetPagedCustomers(
             [FromQuery] string? keyword,
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 5)
+            [FromQuery] int pageSize = 5,
+            [FromQuery] string? sortBy = "id",
+            [FromQuery] bool isDescending = false)
         {
             if (pageNumber < 1) pageNumber = 1;
-            if (pageSize < 1 || pageSize > 50) pageSize = 5;
+            if (pageSize < 1 || pageSize > 100) pageSize = 5;
 
             var query = _db.Customers
                 .AsNoTracking()
@@ -69,9 +71,21 @@ namespace MiniSupermarket.API.Controllers
             int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
             if (totalPages == 0) totalPages = 1;
 
+            string sort = (sortBy ?? "id").Trim().ToLower();
+            query = sort switch
+            {
+                "points" => isDescending
+                    ? query.OrderByDescending(c => c.RewardPoints).ThenBy(c => c.CustomerId)
+                    : query.OrderBy(c => c.RewardPoints).ThenBy(c => c.CustomerId),
+                "name" => isDescending
+                    ? query.OrderByDescending(c => c.CustomerName).ThenBy(c => c.CustomerId)
+                    : query.OrderBy(c => c.CustomerName).ThenBy(c => c.CustomerId),
+                _ => isDescending
+                    ? query.OrderByDescending(c => c.CustomerId)
+                    : query.OrderBy(c => c.CustomerId)
+            };
+
             var items = await query
-                .OrderByDescending(c => c.RewardPoints)
-                .ThenBy(c => c.CustomerId)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

@@ -1,12 +1,18 @@
-﻿using System.Globalization;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
+using System.Linq;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MiniSupermarket.WinForms
 {
     public partial class FormCustomerManagement : Form
     {
-        // DTO riêng cho form khách hàng
+        // DTO riêng cho từng dòng khách hàng trên giao diện
         public class CustomerRow
         {
             public int CustomerId { get; set; }
@@ -16,6 +22,26 @@ namespace MiniSupermarket.WinForms
             public int RewardPoints { get; set; }
             public string MembershipRank { get; set; } = string.Empty;
         }
+
+        // DTO hứng kết quả phân trang từ Web API (api/customers/paged)
+        public class PagedResponse<T>
+        {
+            public int CurrentPage { get; set; }
+            public int PageSize { get; set; }
+            public int TotalItems { get; set; }
+            public int TotalPages { get; set; }
+            public List<T> Items { get; set; } = new();
+        }
+
+        // Trạng thái phân trang và tìm kiếm
+        private int _currentPage = 1;
+        private int _pageSize = 5;
+        private int _totalPages = 1;
+        private int _totalItems = 0;
+        private string _keyword = string.Empty;
+        private string _sortBy = "id";
+        private bool _isDescending = false;
+        private bool _isLoading = false;
 
         public FormCustomerManagement()
         {
@@ -80,19 +106,34 @@ namespace MiniSupermarket.WinForms
 
         private async void FormCustomerManagement_Load(object? sender, EventArgs e)
         {
+            if (cboPageSize.Items.Count > 0)
+                cboPageSize.SelectedIndex = 0; // Mặc định 5 dòng/trang
+
+            if (cboSort.Items.Count > 0)
+                cboSort.SelectedIndex = 0;     // Mặc định sắp xếp theo Mã KH
+
             await LoadCustomersAsync();
         }
 
         // =====================================================
-        // TẢI / TÌM KIẾM
+        // TẢI DỮ LIỆU PHÂN TRANG TỪ WEB API
         // =====================================================
-        private async Task LoadCustomersAsync(string? keyword = null)
+        private async Task LoadCustomersAsync()
         {
+            if (_isLoading) return;
+            _isLoading = true;
+
             try
             {
-                string url = string.IsNullOrWhiteSpace(keyword)
-                    ? "customers"
-                    : $"customers/search?keyword={Uri.EscapeDataString(keyword.Trim())}";
+                string url = $"customers/paged?pageNumber={_currentPage}&pageSize={_pageSize}";
+                if (!string.IsNullOrWhiteSpace(_keyword))
+                {
+                    url += $"&keyword={Uri.EscapeDataString(_keyword.Trim())}";
+                }
+                if (!string.IsNullOrEmpty(_sortBy))
+                {
+                    url += $"&sortBy={_sortBy}&isDescending={_isDescending}";
+                }
 
                 var res = await ApiClientService.Client.GetAsync(url);
 
@@ -103,19 +144,119 @@ namespace MiniSupermarket.WinForms
                     return;
                 }
 
-                var list = await res.Content.ReadFromJsonAsync<List<CustomerRow>>() ?? new List<CustomerRow>();
-                dgvCustomers.DataSource = list;
+                var paged = await res.Content.ReadFromJsonAsync<PagedResponse<CustomerRow>>();
+                if (paged != null)
+                {
+                    _currentPage = paged.CurrentPage;
+                    _pageSize = paged.PageSize;
+                    _totalItems = paged.TotalItems;
+                    _totalPages = Math.Max(1, paged.TotalPages);
+
+                    dgvCustomers.DataSource = paged.Items;
+
+                    // Cập nhật thông số thanh điều hướng phân trang
+                    lblPageInfo.Text = $"Trang {_currentPage} / {_totalPages}";
+                    lblTotalRecords.Text = $"| Tổng số: {_totalItems} KH";
+
+                    btnFirstPage.Enabled = _currentPage > 1;
+                    btnPrevPage.Enabled = _currentPage > 1;
+                    btnNextPage.Enabled = _currentPage < _totalPages;
+                    btnLastPage.Enabled = _currentPage < _totalPages;
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi kết nối máy chủ: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally
+            {
+                _isLoading = false;
+            }
         }
 
+        // =====================================================
+        // ĐIỀU HƯỚNG PHÂN TRANG
+        // =====================================================
+        private async void btnFirstPage_Click(object? sender, EventArgs e)
+        {
+            if (_currentPage > 1)
+            {
+                _currentPage = 1;
+                await LoadCustomersAsync();
+            }
+        }
+
+        private async void btnPrevPage_Click(object? sender, EventArgs e)
+        {
+            if (_currentPage > 1)
+            {
+                _currentPage--;
+                await LoadCustomersAsync();
+            }
+        }
+
+        private async void btnNextPage_Click(object? sender, EventArgs e)
+        {
+            if (_currentPage < _totalPages)
+            {
+                _currentPage++;
+                await LoadCustomersAsync();
+            }
+        }
+
+        private async void btnLastPage_Click(object? sender, EventArgs e)
+        {
+            if (_currentPage < _totalPages)
+            {
+                _currentPage = _totalPages;
+                await LoadCustomersAsync();
+            }
+        }
+
+        private async void cboPageSize_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (int.TryParse(cboPageSize.SelectedItem?.ToString(), out int sz) && sz != _pageSize)
+            {
+                _pageSize = sz;
+                _currentPage = 1;
+                await LoadCustomersAsync();
+            }
+        }
+
+        private async void cboSort_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            switch (cboSort.SelectedIndex)
+            {
+                case 1: // Điểm cao nhất (VIP)
+                    _sortBy = "points";
+                    _isDescending = true;
+                    break;
+                case 2: // Điểm thấp nhất
+                    _sortBy = "points";
+                    _isDescending = false;
+                    break;
+                case 3: // Tên A - Z
+                    _sortBy = "name";
+                    _isDescending = false;
+                    break;
+                default: // Mặc định (Mã KH)
+                    _sortBy = "id";
+                    _isDescending = false;
+                    break;
+            }
+            _currentPage = 1;
+            await LoadCustomersAsync();
+        }
+
+        // =====================================================
+        // TÌM KIẾM VÀ TẢI LẠI
+        // =====================================================
         private async void btnSearch_Click(object? sender, EventArgs e)
         {
-            await LoadCustomersAsync(txtSearch.Text);
+            _keyword = txtSearch.Text.Trim();
+            _currentPage = 1;
+            await LoadCustomersAsync();
         }
 
         private async void txtSearch_KeyDown(object? sender, KeyEventArgs e)
@@ -123,13 +264,17 @@ namespace MiniSupermarket.WinForms
             if (e.KeyCode == Keys.Enter)
             {
                 e.SuppressKeyPress = true;
-                await LoadCustomersAsync(txtSearch.Text);
+                _keyword = txtSearch.Text.Trim();
+                _currentPage = 1;
+                await LoadCustomersAsync();
             }
         }
 
         private async void btnReload_Click(object? sender, EventArgs e)
         {
             txtSearch.Clear();
+            _keyword = string.Empty;
+            _currentPage = 1;
             await LoadCustomersAsync();
         }
 
@@ -157,15 +302,14 @@ namespace MiniSupermarket.WinForms
         {
             if (string.IsNullOrWhiteSpace(txtName.Text) || string.IsNullOrWhiteSpace(txtPhone.Text))
             {
-                MessageBox.Show("Họ tên và số điện thoại không được để trống!", "Cảnh báo",
+                MessageBox.Show("Vui lòng nhập đầy đủ Họ tên và Số điện thoại!", "Cảnh báo",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
-            string phone = txtPhone.Text.Trim();
-            if (phone.Length < 9 || phone.Length > 11 || !phone.All(char.IsDigit))
+            if (!txtPhone.Text.Trim().All(char.IsDigit) || txtPhone.Text.Trim().Length < 9)
             {
-                MessageBox.Show("Số điện thoại phải gồm 9-11 chữ số!", "Cảnh báo",
+                MessageBox.Show("Số điện thoại không hợp lệ (phải là dãy số từ 9 chữ số trở lên)!", "Cảnh báo",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
@@ -188,6 +332,7 @@ namespace MiniSupermarket.WinForms
                     "Thêm khách hàng thành công!"))
             {
                 ClearInputs();
+                _currentPage = 1;
                 await LoadCustomersAsync();
             }
         }
@@ -227,6 +372,9 @@ namespace MiniSupermarket.WinForms
                     "Đã xóa khách hàng!"))
             {
                 ClearInputs();
+                if (dgvCustomers.Rows.Count <= 1 && _currentPage > 1)
+                    _currentPage--;
+
                 await LoadCustomersAsync();
             }
         }
@@ -244,6 +392,7 @@ namespace MiniSupermarket.WinForms
             txtAddress.Clear();
             txtPoints.Clear();
             dgvCustomers.ClearSelection();
+            txtName.Focus();
         }
 
         // =====================================================
@@ -342,7 +491,7 @@ namespace MiniSupermarket.WinForms
 
             if (ok)
             {
-                await LoadCustomersAsync(txtSearch.Text);
+                await LoadCustomersAsync();
                 ClearInputs();
             }
         }
