@@ -195,10 +195,11 @@ namespace MiniSupermarket.API.Controllers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
+                var inner = ex.InnerException != null ? $" ({ex.InnerException.Message})" : string.Empty;
                 return StatusCode(500, new
                 {
                     success = false,
-                    message = "Lỗi trong quá trình thanh toán, giao dịch đã được hoàn tác an toàn: " + ex.Message
+                    message = "Lỗi trong quá trình thanh toán, giao dịch đã được hoàn tác an toàn: " + ex.Message + inner
                 });
             }
         }
@@ -329,7 +330,8 @@ namespace MiniSupermarket.API.Controllers
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return StatusCode(500, new { success = false, message = "Hủy đơn hàng thất bại: " + ex.Message });
+                var inner = ex.InnerException != null ? $" ({ex.InnerException.Message})" : string.Empty;
+                return StatusCode(500, new { success = false, message = "Hủy đơn hàng thất bại: " + ex.Message + inner });
             }
         }
     }

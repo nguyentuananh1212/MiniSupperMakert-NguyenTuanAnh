@@ -329,6 +329,9 @@ namespace MiniSupermarket.API.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("OrderId");
 
                     b.HasIndex("CustomerId");

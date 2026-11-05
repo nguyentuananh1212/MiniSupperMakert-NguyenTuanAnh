@@ -149,7 +149,7 @@ namespace MiniSupermarket.WinForms
             try
             {
                 _orders = await ApiClientService.Client
-                    .GetFromJsonAsync<List<OrderRow>>("api/orders")
+                    .GetFromJsonAsync<List<OrderRow>>("orders")
                     ?? new List<OrderRow>();
 
                 var display = _orders.Select(o => new
@@ -237,7 +237,7 @@ namespace MiniSupermarket.WinForms
             try
             {
                 var res = await ApiClientService.Client
-                    .DeleteAsync($"api/orders/{order.OrderId}");
+                    .DeleteAsync($"orders/{order.OrderId}");
 
                 if (res.IsSuccessStatusCode)
                 {

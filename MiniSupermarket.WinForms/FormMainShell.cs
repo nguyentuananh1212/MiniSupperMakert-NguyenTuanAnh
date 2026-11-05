@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Họ tên sinh viên: Nguyễn Tuấn Anh
  * Mô tả: FormMainShell - Form khung chính chứa sidebar điều hướng và panel nội dung
  */
@@ -61,24 +61,44 @@ namespace MiniSupermarket.WinForms
             {
                 Text      = "🛒  Quản lý đơn hàng",
                 Dock      = DockStyle.Top,
-                Height    = 46,
+                Height    = 45,
                 BackColor = SidebarColor,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font      = new Font("Segoe UI", 10f, FontStyle.Regular),
+                Font      = new Font("Segoe UI Emoji", 10F),
                 TextAlign = ContentAlignment.MiddleLeft,
-                Padding   = new Padding(16, 0, 0, 0)
+                Padding   = new Padding(15, 0, 0, 0),
+                Cursor    = Cursors.Hand
             };
             btnOrderManagement.FlatAppearance.BorderSize = 0;
+            btnOrderManagement.FlatAppearance.MouseOverBackColor = ActiveColor;
             btnOrderManagement.Click += (s, e) =>
                 NavigateOrder(btnOrderManagement, () => new FormOrderManagement(), "QUẢN LÝ ĐƠN HÀNG");
 
             panelSidebar.Controls.Add(btnOrderManagement);
+
+            // Đặt vị trí dưới nút Quản lý sản phẩm (thay vì nhảy lên trên cùng logo)
+            int productIdx = panelSidebar.Controls.GetChildIndex(btnProduct);
+            if (productIdx >= 0)
+            {
+                panelSidebar.Controls.SetChildIndex(btnOrderManagement, productIdx);
+            }
         }
 
-        // Navigate dành riêng cho nút động (không qua CanAccess tĩnh)
+        // Navigate dành riêng cho nút động (kiểm tra quyền Admin / Cashier)
         private void NavigateOrder(Button btn, Func<Form> createForm, string title)
         {
+            string roleUpper = (SessionManager.CurrentRole ?? string.Empty).Trim().ToUpperInvariant();
+            if (roleUpper != "ADMIN" && roleUpper != "CASHIER")
+            {
+                MessageBox.Show(
+                    "Bạn không có quyền truy cập chức năng này!",
+                    "Từ chối",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Stop);
+                return;
+            }
+
             OpenChildForm(createForm(), title, btn);
         }
 

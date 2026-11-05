@@ -445,10 +445,17 @@ namespace MiniSupermarket.WinForms
                 return;
             }
 
+            int pointsToRedeem = 0;
+            if (_customer != null && chkRedeemPoints.Checked && nudPointsToRedeem.Value > 0)
+            {
+                pointsToRedeem = (int)nudPointsToRedeem.Value;
+            }
+
             var orderRequest = new
             {
                 CashierUsername = SessionManager.CurrentUsername,
                 CustomerPhone = _customer?.PhoneNumber,
+                PointsToRedeem = pointsToRedeem,
                 Items = _cart.Select(i => new { i.ProductId, i.Quantity, i.UnitPrice }).ToList()
             };
 
@@ -464,10 +471,14 @@ namespace MiniSupermarket.WinForms
 
                     int orderId = doc.RootElement.GetProperty("orderId").GetInt32();
                     int points = doc.RootElement.GetProperty("pointsEarned").GetInt32();
+                    int pointsRedeemed = doc.RootElement.TryGetProperty("pointsRedeemed", out var pr) ? pr.GetInt32() : 0;
+                    decimal discountAmount = doc.RootElement.TryGetProperty("discountAmount", out var da) ? da.GetDecimal() : 0m;
                     decimal change = cash - GetTotal();
 
                     string msg = $"Thanh toán thành công! Mã hóa đơn: #{orderId}\n" +
                                  $"Tiền thừa trả khách: {change.ToString("N0", Vn)} đ";
+                    if (discountAmount > 0)
+                        msg += $"\nĐã giảm trừ ({pointsRedeemed} điểm): -{discountAmount.ToString("N0", Vn)} đ";
                     if (_customer != null)
                         msg += $"\nĐiểm tích lũy được cộng: +{points}";
 
@@ -532,6 +543,9 @@ namespace MiniSupermarket.WinForms
 
             txtCustomerPhone.Clear();
             SetCustomer(null);
+            chkRedeemPoints.Checked = false;
+            nudPointsToRedeem.Value = 0;
+            pnlLoyaltyPoints.Visible = false;
 
             txtBarcode.Focus();
         }

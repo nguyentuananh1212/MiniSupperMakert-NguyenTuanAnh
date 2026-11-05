@@ -297,6 +297,7 @@
             groupBoxCustomer.Margin = new Padding(0, 0, 0, 10);
             groupBoxCustomer.Name = "groupBoxCustomer";
             groupBoxCustomer.Padding = new Padding(10, 4, 10, 4);
+            groupBoxCustomer.Controls.Add(pnlLoyaltyPoints);
             groupBoxCustomer.Controls.Add(lblCustomerName);
             groupBoxCustomer.Controls.Add(txtCustomerPhone);
             groupBoxCustomer.Controls.Add(labelCustomerPhone);
@@ -313,14 +314,14 @@
             labelCustomerPhone.AutoSize = true;
             labelCustomerPhone.Font = new Font("Segoe UI", 9F);
             labelCustomerPhone.ForeColor = textGray;
-            labelCustomerPhone.Location = new Point(10, 33);
+            labelCustomerPhone.Location = new Point(10, 31);
             labelCustomerPhone.Name = "labelCustomerPhone";
             labelCustomerPhone.Text = "Số điện thoại:";
 
             txtCustomerPhone.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtCustomerPhone.BorderStyle = BorderStyle.FixedSingle;
             txtCustomerPhone.Font = new Font("Segoe UI", 10F);
-            txtCustomerPhone.Location = new Point(100, 29);
+            txtCustomerPhone.Location = new Point(100, 27);
             txtCustomerPhone.Name = "txtCustomerPhone";
             txtCustomerPhone.PlaceholderText = "Nhập SĐT, nhấn Enter";
             txtCustomerPhone.Size = new Size(270, 25);
@@ -328,13 +329,51 @@
             txtCustomerPhone.KeyDown += txtCustomerPhone_KeyDown;
 
             lblCustomerName.AutoSize = false;
-            lblCustomerName.Dock = DockStyle.Bottom;
-            lblCustomerName.Height = 26;
+            lblCustomerName.Location = new Point(10, 56);
+            lblCustomerName.Size = new Size(360, 24);
+            lblCustomerName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblCustomerName.Font = new Font("Segoe UI", 9.5F, FontStyle.Italic);
             lblCustomerName.ForeColor = textGray;
             lblCustomerName.Name = "lblCustomerName";
             lblCustomerName.Text = "Khách vãng lai";
             lblCustomerName.TextAlign = ContentAlignment.MiddleLeft;
+
+            // Panel đổi điểm thưởng
+            pnlLoyaltyPoints.Location = new Point(10, 84);
+            pnlLoyaltyPoints.Size = new Size(360, 68);
+            pnlLoyaltyPoints.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            pnlLoyaltyPoints.BackColor = Color.FromArgb(243, 247, 254);
+            pnlLoyaltyPoints.BorderStyle = BorderStyle.FixedSingle;
+            pnlLoyaltyPoints.Name = "pnlLoyaltyPoints";
+            pnlLoyaltyPoints.Visible = false;
+            pnlLoyaltyPoints.Controls.Add(chkRedeemPoints);
+            pnlLoyaltyPoints.Controls.Add(nudPointsToRedeem);
+            pnlLoyaltyPoints.Controls.Add(lblDiscountNotice);
+
+            chkRedeemPoints.AutoSize = true;
+            chkRedeemPoints.Location = new Point(6, 8);
+            chkRedeemPoints.Font = new Font("Segoe UI", 8.5F);
+            chkRedeemPoints.ForeColor = textDark;
+            chkRedeemPoints.Name = "chkRedeemPoints";
+            chkRedeemPoints.Text = "Dùng điểm (-1k/đ):";
+            chkRedeemPoints.UseVisualStyleBackColor = true;
+            chkRedeemPoints.CheckedChanged += chkRedeemPoints_CheckedChanged;
+
+            nudPointsToRedeem.Location = new Point(175, 6);
+            nudPointsToRedeem.Size = new Size(80, 23);
+            nudPointsToRedeem.Font = new Font("Segoe UI", 9F);
+            nudPointsToRedeem.Maximum = new decimal(new int[] { 100000, 0, 0, 0 });
+            nudPointsToRedeem.Name = "nudPointsToRedeem";
+            nudPointsToRedeem.ThousandsSeparator = true;
+            nudPointsToRedeem.Enabled = false;
+            nudPointsToRedeem.ValueChanged += nudPointsToRedeem_ValueChanged;
+
+            lblDiscountNotice.AutoSize = true;
+            lblDiscountNotice.Location = new Point(6, 36);
+            lblDiscountNotice.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblDiscountNotice.ForeColor = green;
+            lblDiscountNotice.Name = "lblDiscountNotice";
+            lblDiscountNotice.Text = "";
 
             // Tổng tiền
             pnlTotal.BackColor = Color.White;
